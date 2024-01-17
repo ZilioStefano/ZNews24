@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta http-equiv="refresh" content="60">
+    <title>Il Grande Occhio</title>
+</head>
+
+<style>
+th, td {
+    padding: 15px;
+  border: 0px solid black;
+  {#  border-radius: 15px;#}
+  {#border-collapse: collapse;#}
+}
+{#th {#}
+{#  border: 1px solid black;#}
+{#    border-radius: 10px;#}
+  {#border-collapse: collapse;#}
+{#    font-size: 20px;#}
+{#}#}
+</style>
+
+<center><h1 style="background-color: red; font-size: 50px"><font color=white>ZNews24</font></h1></center>
+<br>
+<body style="background-color:#e2f5ef;">
+<center>{{ Current | safe }}</center>
+<br>
+<center>{{ eta | safe }}</center>
+ <center>
+
+ <table style="width:800px; height: 1px">
+  <tr>
+      <th><h1 class="blink"> Ciao</h1></th>
+      <th><h1 class=blink"> {{ Gauge |safe}}</h1></th>
+    <th>{{ Gauge2 | safe}}</th>
+    <th >{{ GaugePR |safe }}</th>
+  </tr>
+
+{#   <tr>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{#  <th bgcolor={{ MPColor }}><font color="white">- {{ MP }} €</font></th>#}
+{#  </tr>#}
+</table>
+
+
+ </center>
+{#<br>#}
+{#{{ Gauge | safe}}#}
+<br>
+</body>
+</html>

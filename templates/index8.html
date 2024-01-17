@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta http-equiv="refresh" content="60">
+    <title>Il Grande Occhio</title>
+</head>
+
+<style>
+th, td {
+    padding: 15px;
+  border: 0px solid black;
+  {#  border-radius: 15px;#}
+  {#border-collapse: collapse;#}
+}
+{#th {#}
+{#  border: 1px solid black;#}
+{#    border-radius: 10px;#}
+  {#border-collapse: collapse;#}
+{#    font-size: 20px;#}
+{#}#}
+</style>
+<center><h1 style="background-color: red; font-size: 50px"><font color=white>ZNews24</font></h1></center>
+<br>
+<body style="background-color:{{pageColor}};">
+<center>{{ Current | safe }}</center>
+<br>
+<center>{{ eta | safe }}</center>
+<br>
+<br>
+ <center>
+ <table style="background-color:{{pageColor}}; border-collapse: collapse">
+
+     <tr>
+{#         <th style="background-color: darkslategrey">#}
+{#             <font color="#dcdcdc">#}
+{#             <table style="text-align: left; border-collapse: collapse; font-size: 25px; vertical-align: center">#}
+{##}
+{#                 <tr>#}
+{#                     <th style="text-align: right;">Ultime 24h:</th><th style="text-align: left;">{{ E24 |safe }}</th><th style="text-align: left;">{{ PR24 |safe }}</th>#}
+{#                 </tr>#}
+{#                 <tr>#}
+{#                     <th style="text-align: right;">Mese:</th><th style="text-align: left;">{{ EMonth | safe}}</th><th style="text-align: left;">{{ PRMese |safe }}</th>#}
+{#                 </tr>#}
+{#                 <tr>#}
+{#                     <th style="text-align: right;">2023:</th><th style="text-align: left;">{{ EAnno | safe}}</th><th style="text-align: left;">{{ PRAnno |safe }}</th>#}
+{#                 </tr>#}
+{##}
+{#             </table>#}
+{#                 </font>#}
+{#         </th>#}
+{##}
+{#         <th>#}
+             <th style="vertical-align: center">{{ Gauge |safe}}</th><th style="vertical-align: center">{{ Gauge2 | safe}}</th><th style="vertical-align: center">{{ GaugePR |safe }}</th>
+     </tr>
+ </table>
+ </center>
+
+{#         <font color="#dcdcdc">#}
+
+{#     style="text-align: left; border-width: 1px; background-color: darkslategrey; font-size: 20px"#}
+
+
+
+{# </center>#}
+{#<br>#}
+{#{{ Gauge | safe}}#}
+<br>
+</body>
+</html>

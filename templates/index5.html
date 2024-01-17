@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta http-equiv="refresh" content="10">
+    <title>Il Grande Occhio</title>
+</head>
+
+<style>
+th, td {
+    padding: 15px;
+  border: 1px solid black;
+  {#  border-radius: 15px;#}
+  {#border-collapse: collapse;#}
+    font-size: 50px;
+}
+{#th {#}
+{#  border: 1px solid black;#}
+{#    border-radius: 10px;#}
+  {#border-collapse: collapse;#}
+{#    font-size: 20px;#}
+{#}#}
+</style>
+
+<center><h1><font color="#808080">L' Uocchio aggir</font></h1></center>
+<br>
+<body style="background-color:#e2f5ef;">
+<center>{{ Current | safe }}</center>
+<br>
+
+ <center>
+ <table style="width:800px; height: 175px">
+  <tr>
+    <th>{{ lastVar2 }}</th>
+    <th>{{ lastP }}</th>
+    <th bgcolor={{ PRCol }}><font color="white">{{ lastPR }} %</font></th>
+  <th bgcolor={{ MPColor }}><font color="white">- {{ MP }} €</font></th>
+  </tr>
+</table></center>
+<br>
+{{ Gauge | safe}}
+</body>
+</html>
