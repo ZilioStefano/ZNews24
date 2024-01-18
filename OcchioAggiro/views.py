@@ -422,15 +422,17 @@ def main(request):
                 CorrMese = df2["ResaMese"][0]
                 PRMese = df2["PRMese"][0]
                 CorrispettivoAnno = df2["ResaAnno"][0]
+            Now = datetime.now().strftime("%Y")
 
             Graphs = {"Current": GraphData["Grafico"], "eta": GraphEta["GraficoRendimenti"], "lastVar2": lastVar2,
                       "lastP": lastP, "lastPR": lastPR, "PRCol": PRBGCol, "Gauge": datiGaugePower, "Gauge2": datiGauge2, "GaugePR": datiGaugePR, "BlinkCode": BlinkCode,
                       "PowerLedColor": PowerLedColor, "LedColor2": LedColor2,"PRLedColor": PRLedColor, "E24": E24,
                       "EMonth": EMese, "EAnno": df2["EAnno"][0], "pageColor": pageColor, "PR24": PR24,
                       "PRMese": PRMese, "PRAnno": df2["PRAnno"][0], "Corrispettivo24": Corrispettivo24,
-                      "CorrispettivoMese": CorrMese, "CorrispettivoAnno": CorrispettivoAnno}
+                      "CorrispettivoMese": CorrMese, "CorrispettivoAnno": CorrispettivoAnno, "Year": Now}
 
             Template = "index7.html"
+            Now = datetime.now().strftime("%Y")
 
         elif Plant == 6:
             GraphData = creaGraficoCarichi(df, currType, currPlant)
@@ -496,13 +498,14 @@ def main(request):
         datiGauge2, LedColor2 = plotGaugeCharge(df, currPlant)
         datiGaugePR, DatiRef, PRLedColor = plotGaugePR(df, currPlant, dfST, dfPartitore)
         datiGaugePower, PowerLedColor = plotGaugePower(df, currPlant, DatiRef)
+        Now = datetime.now().strftime("%Y")
 
         Graphs = {"Current": GraphData["Grafico"], "lastVar2": lastVar2,
                   "lastP": lastP, "lastPR": lastPR, "PRCol": PRBGCol,
                   "eta": GraphEta["GraficoRendimenti"],
                   "Gauge": datiGaugePower, "Gauge2": datiGauge2,
                   "GaugePR": datiGaugePR, "PowerLedColor": PowerLedColor, "LedColor2": LedColor2, "PRLedColor": PRLedColor,
-                  "pageColor": pageColor}
+                  "pageColor": pageColor, "Year": Now}
 
         Template = "index8.html"
 
@@ -511,7 +514,8 @@ def main(request):
         GraphData = creaGraficoCarichi(df, currType, currPlant)
 
         Template = "index4.html"
+        Now = datetime.now().strftime("%Y")
 
-        Graphs = {"Grafico": GraphData["Grafico"], "BlinkCode": BlinkCode}
+        Graphs = {"Grafico": GraphData["Grafico"], "BlinkCode": BlinkCode, "Year": Now}
 
     return render(request, Template, context=Graphs)
