@@ -905,8 +905,6 @@ def CreaGraficoRendimenti(Data,type, Plant, CurrState):
     else:
         lineColor = 'orange'
 
-
-
     if type == "PV":
         fig1 = px.line(Data, x="tI", y="PRlast24", template="ggplot2", line_shape='spline')
         fig1.update_traces(line_color=lineColor)
@@ -915,9 +913,11 @@ def CreaGraficoRendimenti(Data,type, Plant, CurrState):
         t = Data["t"]
         PR = Data["PRlast24"]
 
-        tVal = t[PR < 100]
-        PRVal = PR[PR < 100]
-        fig1 = px.line(x=tVal, y=PRVal, template="ggplot2", line_shape='spline')
+        # tVal = t[PR < 100]
+        #
+        #
+        # PRVal = PR[PR < 100]
+        fig1 = px.line(x=t, y=PR, template="ggplot2", line_shape='spline')
         fig1.update_traces(line_color=lineColor)
 
     if Plant == 6:

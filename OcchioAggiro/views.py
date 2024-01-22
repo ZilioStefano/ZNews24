@@ -24,7 +24,7 @@ def main(request):
 
     df = pd.read_csv("Current Plant.csv")
     Plant = int(df["Plant"])
-    # Plant = -1
+    # Plant = 5
     # print(Plant)
 
     print(Plant)
@@ -202,6 +202,7 @@ def main(request):
         currType = "H2O"
         Filename = "Carichi.csv"
 
+
     if Plant < 6 and Plant > -2:
         gFile = open(Filename, "wb")
         ftp.retrbinary("RETR " + Filename, gFile.write)
@@ -248,8 +249,8 @@ def main(request):
             lastPR = round(PR[len(PR) - 1], 1)
 
             PR24 = PR[PR != float('inf')]
-            PR24 = PR24[np.isnan(PR24) == 0]
-            PR24 = str(round(mean(PR24), 1)) + " %"
+            # PR24 = PR24[np.isnan(PR24) == 0]
+            # PR24 = str(round(mean(PR24), 1)) + " %"
             PRBGCol = "green"
 
             if lastPR < 70:
@@ -263,7 +264,7 @@ def main(request):
             lastVar2 = "No Link"
             lastPR = "No Link"
             PRBGCol = "grey"
-            PR24 = ""
+
 
     elif currPlant == "TF" or currPlant == "ST" or currPlant == "Partitore" or currPlant == "PG" or currPlant == "SA3":
 
@@ -285,12 +286,12 @@ def main(request):
         lastP, lastPCol = convertNumber(lastP, "Power", "HTML", currPlant)
         PR = df["PRlast24"]
         PR24 = PR[PR != float('inf')]
-        PR24 = PR24[np.isnan(PR24) == 0]
+        # PR24 = PR24[np.isnan(PR24) == 0]
 
-        if np.isnan(PR24).all():
-            PR24 = ""
-        else:
-            PR24 = str(round(mean(PR24[PR24<100]), 1)) +" %"
+        # if np.isnan(PR24).all():
+        #     PR24 = ""
+        # else:
+        #     PR24 = str(round(mean(PR24[PR24<100]), 1)) +" %"
 
         lastPR = round(PR[len(PR) - 1], 1)
 
@@ -375,12 +376,13 @@ def main(request):
             GraphEta = CreaGraficoRendimenti(df, currType, Plant, CurrState)
 
             try:
-                if E24<0:
-                    sign="-"
+                if E24 < 0:
+                    sign = "-"
                 else:
-                    sign=""
+                    sign = ""
                 E24, dummy = convertNumber(E24, "Energy", "HTML", currPlant)
                 E24 = sign+E24
+
             except Exception as err:
                 print(err)
                 E24 = "No-Link"
@@ -392,7 +394,7 @@ def main(request):
                 Corrispettivo24 = "Ignoto"
 
             if Plant == -1:
-                PR24 = ""
+                # PR24 = ""
                 Corrispettivo24 = ""
                 df2["PRMese"][0] = ""
                 df2["PRAnno"][0] = ""
@@ -424,10 +426,17 @@ def main(request):
                 CorrispettivoAnno = df2["ResaAnno"][0]
             Now = datetime.now().strftime("%Y")
 
+            try:
+                PR24Mean = np.nanmean(PR24)
+                PR24Mean = str(round(PR24Mean,1))+" %"
+            except Exception as err:
+                print(err)
+                PR24Mean = "Ignoto"
+
             Graphs = {"Current": GraphData["Grafico"], "eta": GraphEta["GraficoRendimenti"], "lastVar2": lastVar2,
                       "lastP": lastP, "lastPR": lastPR, "PRCol": PRBGCol, "Gauge": datiGaugePower, "Gauge2": datiGauge2, "GaugePR": datiGaugePR, "BlinkCode": BlinkCode,
                       "PowerLedColor": PowerLedColor, "LedColor2": LedColor2,"PRLedColor": PRLedColor, "E24": E24,
-                      "EMonth": EMese, "EAnno": df2["EAnno"][0], "pageColor": pageColor, "PR24": PR24,
+                      "EMonth": EMese, "EAnno": df2["EAnno"][0], "pageColor": pageColor, "PR24": PR24Mean,
                       "PRMese": PRMese, "PRAnno": df2["PRAnno"][0], "Corrispettivo24": Corrispettivo24,
                       "CorrispettivoMese": CorrMese, "CorrispettivoAnno": CorrispettivoAnno, "Year": Now}
 
