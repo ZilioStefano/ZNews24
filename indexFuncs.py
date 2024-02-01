@@ -41,8 +41,6 @@ def readAlarms():
 
 def plotGaugePR(data, Plant,df24ST, df24Partitore):
 
-    udm = "\u03B7 [%]"
-
     if Plant == "PV":
         I = data["IPV"]
         P = data["PPV"]
@@ -60,7 +58,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
         P = data["P"]
         lastP = P[len(P)-1]
 
-        Q = data["Q"]
+        Q = data["Q"] * 1000
         lastQ = Q[len(Q)-1]
         name = "\u03b7"
 
@@ -77,10 +75,10 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
         Q = data["Q"]
         lastQ = Q[len(Q)-1]
         name = "\u03b7"
-    elif Plant == "Partitore":
+    elif Plant == "PAR":
         PMax = 100
         P = data["P"]
-        Q = data["Q"]
+        Q = data["Q"] * 1000
         lastQ = Q[len(Q)-1]
         df = pd.read_csv("rendimentoRealePartitore.csv")
         name = "\u03b7"
@@ -88,7 +86,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
     elif Plant == "PG":
         PMax = 248
         P = data["P"]
-        Q = data["Q"]
+        Q = data["Q"] * 1000
         lastQ = Q[len(Q)-1]
         df = pd.read_csv("rendimentoRealePG.csv")
         name = "\u03b7"
@@ -115,7 +113,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
     elif Plant == "SCN":
         PMax = 926.64
         P = data["P"]
-        Q = data["G"]
+        Q = data["I"]
         lastQ = Q[len(Q) - 1]
         name = "PR"
 
@@ -156,8 +154,11 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
         PMax = 259.30
         P = data["P"]
         lastP = P[len(P)-1]
-
         Q = data["Q"]
+
+        if Plant != "SA3" and Plant != "TF":
+            Q = Q *1000
+
         lastQ = Q[len(Q)-1]
 
         ok = 0
@@ -183,7 +184,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
             else:
                 j = j+1
 
-        h = data["h"]
+        h = data["Bar"]
         lasth = h[len(h)-1]
 
     elif Plant == "CST":
@@ -298,18 +299,16 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
             devCurr = 0.0823
             PRMax = 100
 
-
     etaMedio = etaCurr
     devST = devCurr
 
     etaPlus = etaMedio + devST
     etaMinus = etaMedio - devST
 
-
     if len(P)>0:
         lastP = P[len(P)-1]
         PPrec = P[len(P)-2]
-        PR = data["PRlast24"]
+        PR = data["Eta"]
         lastPR = PR[len(PR) - 1]
         PRPrec = PR[len(PR) - 2]
     else:
@@ -343,7 +342,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
 
     else:
 
-        lastPR = round(lastPR, 1)
+        lastPR = round(100*lastPR, 1)
         if lastPR < 100*etaMinus:
             ledColor = "led-red"
         elif lastPR > 100*etaPlus:
@@ -394,7 +393,7 @@ def plotGaugePR(data, Plant,df24ST, df24Partitore):
 
 def plotGaugeRad(data, Plant):
 
-    I = data["G"]
+    I = data["I"]
     P = data["P"]
 
     QMax = 1300
@@ -510,8 +509,8 @@ def plotGaugeCharge(data, Plant):
     if Plant == "ST":
 
         P = data["P"]
-        Q = data["Q"]
-        h = data["h"]
+        Q = data["Q"] * 1000
+        Bar = data["Bar"]
         QMax = 80
         QLim = 70
         QMedia = 66.8
@@ -520,17 +519,17 @@ def plotGaugeCharge(data, Plant):
     elif Plant == "PG":
 
         P = data["P"]
-        Q = data["Q"]
-        h = data["h"]
+        Q = data["Q"] * 1000
+        h = data["Bar"] * 10.1974
         QMax = 80
         QLim = 70
         QMedia = 9.77
         QDev = 9.76
 
-    elif Plant == "Partitore":
+    elif Plant == "PAR":
         P = data["P"]
-        Q = data["Q"]
-        h = data["h"]
+        Q = data["Q"] * 1000
+        h = data["Bar"] * 10.1974
         QMax = 30
         QLim = 25
         QMedia = 22.4
@@ -539,7 +538,7 @@ def plotGaugeCharge(data, Plant):
     elif Plant == "TF":
         P = data["P"]
         Q = data["Q"]
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         QMax = 3
         QLim = 1.54
         QMedia = 1.94
@@ -565,7 +564,7 @@ def plotGaugeCharge(data, Plant):
     else:
         P = data["P"]
         Q = data["Q"]
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         lasth = h[len(h) - 1]
 
     lastP = P[len(P)-1]
@@ -629,10 +628,10 @@ def plotGaugePower(data, Plant, DatiRef):
         P = data["P"]
         lastP = P[len(P)-1]
 
-        Q = data["Q"]
+        Q = data["Q"] * 1000
         lastQ = Q[len(Q)-1]
 
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         lasth = h[len(h)-1]
 
         etaMedio = DatiRef["etaRef"]
@@ -665,7 +664,7 @@ def plotGaugePower(data, Plant, DatiRef):
         PMinus = etaMinus * 9.81 * lastQ / 1000 * lasth
         PPlus = etaPlus * 9.81 * lastQ / 1000 * lasth
 
-    elif Plant == "Partitore":
+    elif Plant == "PAR":
 
         PMax = 100
         P = data["P"]
@@ -673,7 +672,7 @@ def plotGaugePower(data, Plant, DatiRef):
 
         Q = data["Q"]
         lastQ = Q[len(Q)-1]
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         lasth = h[len(h)-1]
 
         etaMedio = DatiRef["etaRef"]
@@ -693,7 +692,7 @@ def plotGaugePower(data, Plant, DatiRef):
 
         Q = data["Q"]
         lastQ = Q[len(Q)-1]
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         lasth = h[len(h)-1]
 
         etaMedio = DatiRef["etaRef"]
@@ -713,7 +712,7 @@ def plotGaugePower(data, Plant, DatiRef):
 
         Q = data["Q"]
         lastQ = Q[len(Q)-1]
-        h = data["h"]
+        h = data["Bar"] * 10.1974
         lasth = h[len(h)-1]
 
         etaMedio = 1000*DatiRef["etaRef"]
@@ -748,7 +747,7 @@ def plotGaugePower(data, Plant, DatiRef):
     elif Plant == "SCN":
         PMax = 926.64
         P = data["P"]
-        Q = data["G"]
+        Q = data["I"]
         lastQ = Q[len(Q) - 1]
 
         etaMedio = 0.8
@@ -782,13 +781,16 @@ def plotGaugePower(data, Plant, DatiRef):
     if len(P)>0:
         lastP = P[len(P)-1]
         PPrec = P[len(P)-2]
+
     else:
         lastP = float('nan')
 
     if lastP < PMinus:
         ledColor = "led-red"
+
     elif lastP > PPlus:
         ledColor="led-green"
+
     else:
         ledColor="led-yellow"
 
@@ -894,11 +896,11 @@ def calcolaRendimenti(data, Type, Plant):
     return t, eta
 
 
-def CreaGraficoRendimenti(Data,type, Plant, CurrState):
+def CreaGraficoRendimenti(Data, type, Plant, CurrState):
 
     bgColor = 'red'
     # if Plant != 6:
-    PR = Data["PRlast24"]
+    PR = Data["Eta"]
     maxPR = 100
     if CurrState == "W":
         lineColor = 'grey'
@@ -906,12 +908,18 @@ def CreaGraficoRendimenti(Data,type, Plant, CurrState):
         lineColor = 'orange'
 
     if type == "PV":
-        fig1 = px.line(Data, x="tI", y="PRlast24", template="ggplot2", line_shape='spline')
+
+        t = Data["t"]
+        # t = pd.to_datetime(t)
+        PR = 100 * Data["Eta"]
+
+        fig1 = px.line(x=t, y=PR, template="ggplot2", line_shape='spline')
         fig1.update_traces(line_color=lineColor)
 
     else:
         t = Data["t"]
-        PR = Data["PRlast24"]
+        # t = pd.to_datetime(t)
+        PR = 100 * Data["Eta"]
 
         # tVal = t[PR < 100]
         #
@@ -976,17 +984,17 @@ def creaGrafico(Data, Type, Plant, CurrState):
         lastP = float('nan')
 
     if Type == "PV":
-        y2 = Data["G"]
+        y2 = Data["I"]
 
-        if len(y2)>0:
+        if len(y2) > 0:
             y2Max = max(y2)
             y2Min = min(y2)
         else:
             y2Max = 0
             y2Min = 0
 
-        time = Data["tI"]
-        fig = px.area(Data, x="tP", y="P", template=template)
+        time = Data["t"]
+        fig = px.area(Data, x="t", y="P", template=template)
 
     else:
         y2 = Data["Q"]
@@ -1005,9 +1013,17 @@ def creaGrafico(Data, Type, Plant, CurrState):
 
     if Type == "PV":
 
-        fig2 = px.line(Data, x="tI", y="G", template=template)
+        fig2 = px.line(Data, x="t", y="I", template=template)
+
     else:
-        fig2 = px.line(Data, x="t", y="Q", template=template)
+
+        x = Data["t"].values
+        y = Data["Q"].values
+
+        if Plant != "TF" and Plant != "SA3":
+            y = 1000 * y
+
+        fig2 = px.line(None,x, y, template=template)
 
     # fig2.update_yaxes(range=[min(0, QMin), max(80, QMax)])
     fig2.update_traces(yaxis="y2")
@@ -1045,26 +1061,27 @@ def creaGrafico(Data, Type, Plant, CurrState):
         SecondMaxScala = 1300
 
     elif Plant == "Rubino":
-        subfig.update_layout(height=400, width=1700, title_text="Rubino",title_font=dict(size=TitleChSize))
+        subfig.update_layout(height=400, width=1700, title_text="Rubino", title_font=dict(size=TitleChSize))
         PMaxScala = 997.44
         SecondMaxScala = 1300
 
     elif Plant == "ST":
-        subfig.update_layout(height=400, width=1700, title_text="San Teodoro",title_font=dict(size=TitleChSize))
+        subfig.update_layout(height=400, width=1700, title_text="San Teodoro", title_font=dict(size=TitleChSize))
         PMaxScala = 259.30
-        SecondMaxScala = 80
+        SecondMaxScala = max(80, max(y))
 
-    elif Plant == "Partitore":
-        subfig.update_layout(height=400, width=1700, title_text="Partitore",title_font=dict(size=TitleChSize))
+    elif Plant == "PAR":
+        subfig.update_layout(height=400, width=1700, title_text="Partitore", title_font=dict(size=TitleChSize))
         PMaxScala = 100
-        SecondMaxScala = 25
+        SecondMaxScala = max(25, max(y))
+
 
     elif Plant == "PG":
-        subfig.update_layout(height=400, width=1700, title_text="Ponte Giurino",title_font=dict(size=TitleChSize))
+        subfig.update_layout(height=400, width=1700, title_text="Ponte Giurino", title_font=dict(size=TitleChSize))
         PMaxScala = 248
         SecondMaxScala = 80
     elif Plant == "SA3":
-        subfig.update_layout(height=400, width=1700, title_text="SA3",title_font=dict(size=TitleChSize))
+        subfig.update_layout(height=400, width=1700, title_text="SA3", title_font=dict(size=TitleChSize))
         PMaxScala = 250
         SecondMaxScala = 3
 

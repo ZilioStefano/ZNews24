@@ -16,52 +16,46 @@ def main(request):
     global NextPlant, currPlant, FilenameDay, lastVar2, lastP, lastPR, PRBGCol
     StatoAllarmi = readAlarms()
 
-    # 1. leggo l'impianto corrente dal server
-    # 2. Aggiorno l'impianto corrente nel server
-    # 3. scarico i dati relativi all'impianto
-    # 3. Faccio il grafico
-    # 4. Ripeto dopo 60 secondi
-
     df = pd.read_csv("Current Plant.csv")
     Plant = int(df["Plant"])
-    # Plant = 5
+    Plant = 4
     # print(Plant)
 
     print(Plant)
     # Plant = 9
 
     if Plant == -2:
-        currPlant = "DI"
+        PlantTag = "DI"
         NextPlant = -1
         CurrState = StatoAllarmi["DI"]
 
     elif Plant == -1:
-        currPlant = "SA3"
+        PlantTag = "SA3"
         NextPlant = 0
         CurrState = StatoAllarmi["SA3"]
 
     elif Plant == 0:
-        currPlant = "ST"
+        PlantTag = "ST"
         NextPlant = 1
         CurrState = StatoAllarmi["ST"]
 
     elif Plant == 1:
-        currPlant = "Partitore"
+        PlantTag = "PAR"
         NextPlant = 2
         CurrState = StatoAllarmi["Partitore"]
 
     elif Plant == 2:
-        currPlant = "PG"
+        PlantTag = "PG"
         NextPlant = 3
         CurrState = StatoAllarmi["PG"]
 
     elif Plant == 3:
-        currPlant = "TF"
+        PlantTag = "TF"
         NextPlant = 4
         CurrState = StatoAllarmi["TF"]
 
     elif Plant == 4:
-        currPlant = "SCN"
+        PlantTag = "SCN"
         NextPlant = 5
         CurrState1 = StatoAllarmi["SCN1"]
         CurrState2 = StatoAllarmi["SCN2"]
@@ -74,24 +68,24 @@ def main(request):
             CurrState = "W"
 
     elif Plant == 5:
-        currPlant = "Rubino"
+        PlantTag = "Rubino"
         NextPlant = 6
         CurrState = StatoAllarmi["Rubino"]
 
     elif Plant == 6:
-        currPlant = "CST"
+        PlantTag = "CST"
         NextPlant = 7
 
     elif Plant == 7:
-        currPlant = "H2O"
+        PlantTag = "H2O"
         NextPlant = 8
 
     elif Plant == 8:
-        currPlant = "PV"
+        PlantTag = "PV"
         NextPlant = 9
 
     elif Plant == 9:
-        currPlant = "Global"
+        PlantTag = "Global"
         NextPlant = -1
 
     # NextPlant = 0
@@ -99,10 +93,8 @@ def main(request):
     ftp = FTP("192.168.10.211", timeout=120)
     ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
 
-    print(currPlant)
-    if currPlant == "SCN":
-        Filename = "SCNlast24Plot.csv"
-        Filename2 = "SCNDataHTML.csv"
+    print(PlantTag)
+    if PlantTag == "SCN":
 
         ftp.cwd('/dati/SCN')
         lastPlant = {"Plant": NextPlant}
@@ -112,9 +104,7 @@ def main(request):
 
         FilenameDay = "SCNDailyPlot.csv"
 
-    elif currPlant == "Rubino":
-        Filename = "Rubinolast24Plot.csv"
-        Filename2 = "RubinoDataHTML.csv"
+    elif PlantTag == "RUB":
 
         ftp.cwd('/dati/Rubino')
         lastPlant = {"Plant": NextPlant}
@@ -124,9 +114,7 @@ def main(request):
 
         FilenameDay = "RubinoDailyPlot.csv"
 
-    elif currPlant == "ST":
-        Filename = "STlast24Plot.csv"
-        Filename2 = "STDataHTML.csv"
+    elif PlantTag == "ST":
 
         ftp.cwd('/dati/San_Teodoro')
         lastPlant = {"Plant": NextPlant}
@@ -136,9 +124,7 @@ def main(request):
 
         FilenameDay = "STDailyPlot.csv"
 
-    elif currPlant == "Partitore":
-        Filename = "Partitorelast24Plot.csv"
-        Filename2 = "PartitoreDataHTML.csv"
+    elif PlantTag == "PAR":
 
         ftp.cwd('/dati/San_Teodoro')
         lastPlant = {"Plant": NextPlant}
@@ -148,9 +134,7 @@ def main(request):
 
         FilenameDay = "PartitoreDailyPlot.csv"
 
-    elif currPlant == "PG":
-        Filename = "PGlast24Plot.csv"
-        Filename2 = "PGDataHTML.csv"
+    elif PlantTag == "PG":
 
         ftp.cwd('/dati/ponte_giurino')
         lastPlant = {"Plant": NextPlant}
@@ -160,9 +144,7 @@ def main(request):
 
         FilenameDay = "PGDailyPlot.csv"
 
-    elif currPlant == "TF":
-        Filename = "TFlast24Plot.csv"
-        Filename2 = "TFDataHTML.csv"
+    elif PlantTag == "TF":
 
         ftp.cwd('/dati/Torrino_Foresta')
         lastPlant = {"Plant": NextPlant}
@@ -172,9 +154,7 @@ def main(request):
 
         FilenameDay = "TFDailyPlot.csv"
 
-    elif currPlant == "SA3":
-        Filename = "SA3last24Plot.csv"
-        Filename2 = "SA3DataHTML.csv"
+    elif PlantTag == "SA3":
 
         ftp.cwd('/dati/SA3')
         lastPlant = {"Plant": NextPlant}
@@ -183,9 +163,7 @@ def main(request):
         currType = "H2O"
         FilenameDay = "SA3DailyPlot.csv"
 
-    elif currPlant == "DI":
-        Filename = "DIlast24Plot.csv"
-        Filename2 = "DIDataHTML.csv"
+    elif PlantTag == "DI":
 
         ftp.cwd('/dati/Zilio_Roof/Dual Immobiliare')
         lastPlant = {"Plant": NextPlant}
@@ -202,23 +180,37 @@ def main(request):
         currType = "H2O"
         Filename = "Carichi.csv"
 
+    last24h_TL_Filename = PlantTag+"last24hTL.csv"
+    last24h_STAT_Filename = PlantTag+"last24hStat.csv"
+    Month_TL_Filename = PlantTag+"MonthTL.csv"
+    Month_STAT_Filename = PlantTag+"MonthStat.csv"
+    Year_TL_Filename = PlantTag+"YearTL.csv"
+    Year_STAT_Filename = PlantTag+"YearStat.csv"
+
+    gFile = open(last24h_TL_Filename, "wb")
+    ftp.retrbinary("RETR " + last24h_TL_Filename, gFile.write)
+    gFile.close()
+    df24hTL = pd.read_csv(last24h_TL_Filename)
+
+    gFile = open(last24h_STAT_Filename, "wb")
+    ftp.retrbinary("RETR " + last24h_STAT_Filename, gFile.write)
+    gFile.close()
+    df24hStat = pd.read_csv(last24h_STAT_Filename)
+
+    gFile = open(Month_STAT_Filename, "wb")
+    ftp.retrbinary("RETR " + Month_STAT_Filename, gFile.write)
+    gFile.close()
+    dfMonthStat = pd.read_csv(Month_STAT_Filename)
+
+    gFile = open(Year_STAT_Filename, "wb")
+    ftp.retrbinary("RETR " + Year_STAT_Filename, gFile.write)
+    gFile.close()
+    dfYearStat = pd.read_csv(Year_STAT_Filename)
+
+    ftp.close()
 
     if Plant < 6 and Plant > -2:
-        gFile = open(Filename, "wb")
-        ftp.retrbinary("RETR " + Filename, gFile.write)
-        gFile.close()
-        df = pd.read_csv(Filename)
-
-        # gFileDay = open(FilenameDay, "wb")
-        # ftp.retrbinary("RETR " + FilenameDay, gFileDay.write)
-        # gFileDay.close()
-
-        gFile2 = open(Filename2, "wb")
-        ftp.retrbinary("RETR " + Filename2, gFile2.write)
-        gFile2.close()
-
-        df2 = pd.read_csv(open(Filename2))
-
+        A = 3
 
     else:
 
@@ -227,25 +219,27 @@ def main(request):
         gFile.close()
         df = pd.read_csv(Filename)
 
-    if currPlant == "Rubino" or currPlant == "SCN":
-        G = df["G"]
+    if PlantTag == "RUB" or PlantTag == "SCN":
+        G = df24hTL["I"]
+
         if len(G) > 0:
             lastG = G[len(G) - 1]
-            lastVar2, lastVar2Col = convertNumber(lastG, "ERad", "HTML", currPlant)
+            lastVar2, lastVar2Col = convertNumber(lastG, "ERad", "HTML", PlantTag)
 
-            P = df["P"]
-            t = pd.to_datetime(df["tP"])
+            P = df24hTL["P"]
+            t = pd.to_datetime(df24hTL["t"])
             t0 = datetime.now()
             t0 = t0 - timedelta(hours=24)
+
             try:
-                E24 = mean(P[t >= t0]) * 24
+                E24 = df24hStat["Energy"][0]
             except Exception as err:
                 print(err)
                 E24 = float('nan')
 
             lastP = P[len(P) - 1]
-            lastP, lastPCol = convertNumber(lastP, "Power", "HTML", currPlant)
-            PR = df["PRlast24"]
+            lastP, lastPCol = convertNumber(lastP, "Power", "HTML", PlantTag)
+            PR = df24hTL["Eta"]
             lastPR = round(PR[len(PR) - 1], 1)
 
             PR24 = PR[PR != float('inf')]
@@ -265,33 +259,27 @@ def main(request):
             lastPR = "No Link"
             PRBGCol = "grey"
 
+    elif PlantTag == "TF" or PlantTag == "ST" or PlantTag == "PAR" or PlantTag == "PG" or PlantTag == "SA3":
 
-    elif currPlant == "TF" or currPlant == "ST" or currPlant == "Partitore" or currPlant == "PG" or currPlant == "SA3":
-
-        Q = df["Q"]
+        Q = df24hTL["Q"]
         lastQ = Q[len(Q)-1]
-        lastVar2, lastVar2Col = convertNumber(lastQ, "Charge", "HTML", currPlant)
+        lastVar2, lastVar2Col = convertNumber(lastQ, "Charge", "HTML", PlantTag)
 
-        P = df["P"]
+        P = df24hTL["P"]
 
-        t = pd.to_datetime(df["t"])
+        t = pd.to_datetime(df24hTL["t"])
         t0 = datetime.now()
         t0 = t0 - timedelta(hours=24)
         if len(P[t>=t0])>0:
+
             E24 = mean(P[t>=t0])*24
         else:
             E24 = 0
 
         lastP = P[len(P) - 1]
-        lastP, lastPCol = convertNumber(lastP, "Power", "HTML", currPlant)
-        PR = df["PRlast24"]
+        lastP, lastPCol = convertNumber(lastP, "Power", "HTML", PlantTag)
+        PR = df24hTL["Eta"]
         PR24 = PR[PR != float('inf')]
-        # PR24 = PR24[np.isnan(PR24) == 0]
-
-        # if np.isnan(PR24).all():
-        #     PR24 = ""
-        # else:
-        #     PR24 = str(round(mean(PR24[PR24<100]), 1)) +" %"
 
         lastPR = round(PR[len(PR) - 1], 1)
 
@@ -303,7 +291,7 @@ def main(request):
         else:
             PRBGCol = "green"
 
-    elif currPlant == "PV":
+    elif PlantTag == "PV":
 
         G = df["IPV"]
         lastG = G
@@ -317,7 +305,6 @@ def main(request):
         else:
             lastP, lastPCol = convertNumber(lastP, "Power", "HTML", currPlant)
 
-
         PR = 100 * df["PRPV"]
         lastPR = round(PR[len(PR) - 1], 1)
 
@@ -329,10 +316,10 @@ def main(request):
         else:
             PRBGCol = "green"
 
-    elif currPlant == "CST":
+    elif PlantTag == "CST":
         Q = df["QCST"]
 
-    elif currPlant == "DI":
+    elif PlantTag == "DI":
         P = df["P"]
         lastP = P[len(P) - 1]
         lastP, lastPCol = convertNumber(lastP, "Power", "HTML", currPlant)
@@ -348,47 +335,34 @@ def main(request):
         else:
             pageColor = "#e2f5ef"
 
-        if Plant < 6:
-            MP = np.array(df["MancataProduzione"])
-        else:
-            MP = np.array(df["MPPV"])
-
-        if currPlant == "ST" or currPlant == "TF" or currPlant == "PG" or currPlant == "Partitore" or currPlant=="SA3":
-            datiGauge2, LedColor2 = plotGaugeCharge(df, currPlant)
+        if PlantTag == "ST" or PlantTag == "TF" or PlantTag == "PG" or PlantTag == "PAR" or PlantTag == "SA3":
+            datiGauge2, LedColor2 = plotGaugeCharge(df24hTL, PlantTag)
 
         else:
-            datiGauge2, LedColor2 = plotGaugeRad(df, currPlant)
+            datiGauge2, LedColor2 = plotGaugeRad(df24hTL, PlantTag)
 
-        datiGaugePR, DatiRef, PRLedColor = plotGaugePR(df, currPlant,0,0)
-        datiGaugePower, PowerLedColor = plotGaugePower(df, currPlant, DatiRef)
-
-
-        # if MP[0] > 0:
-        #     MPColor = "red"
-        #     MPString, col = convertNumber(MP[0], "Money", "PDF", currPlant)
-        #
-        # else:
-        #     MPColor = "green"
-        #     MPString = "0,00"
+        datiGaugePR, DatiRef, PRLedColor = plotGaugePR(df24hTL, PlantTag, 0, 0)
+        datiGaugePower, PowerLedColor = plotGaugePower(df24hTL, PlantTag, DatiRef)
 
         if Plant < 6:
-            GraphData = creaGrafico(df, currType, currPlant, CurrState)
-            GraphEta = CreaGraficoRendimenti(df, currType, Plant, CurrState)
+
+            GraphData = creaGrafico(df24hTL, currType, PlantTag, CurrState)
+            GraphEta = CreaGraficoRendimenti(df24hTL, currType, Plant, CurrState)
 
             try:
                 if E24 < 0:
                     sign = "-"
                 else:
                     sign = ""
-                E24, dummy = convertNumber(E24, "Energy", "HTML", currPlant)
+                E24, dummy = convertNumber(E24, "Energy", "HTML", PlantTag)
                 E24 = sign+E24
 
             except Exception as err:
                 print(err)
                 E24 = "No-Link"
 
-            if len(df["Corrispettivo"])>0:
-                Corrispettivo24 = convertNumber(df["Corrispettivo"][0], "Money", "HTML", currPlant)
+            if len(df24hStat["Resa"])>0:
+                Corrispettivo24 = convertNumber(df24hStat["Resa"][0], "Money", "HTML", PlantTag)
                 Corrispettivo24 = Corrispettivo24[0]
             else:
                 Corrispettivo24 = "Ignoto"
@@ -401,10 +375,17 @@ def main(request):
                 df2["ResaMese"][0] = ""
                 df2["ResaAnno"][0] = ""
 
-            if currPlant == "Rubino" or currPlant == "SCN":
-                EMese = df["EIncMese"]
-                CorrMese = df["CorrMese"]
-                PRMese = df2["PRMese"]
+            if PlantTag == "Rubino" or PlantTag == "SCN":
+                EMese, dummy = convertNumber(dfMonthStat["Energy"][0], "Energy", "HTML", PlantTag)
+                CorrMese, dummy = convertNumber(dfMonthStat["Resa"][0], "Money", "HTML", PlantTag)
+                CorrMese = CorrMese + "+RID"
+                PRMese = str(round(100*dfMonthStat["etaMean"][0], 1))+" %"
+                EAnno = dfYearStat["Energy"][0]
+                EAnno, dummy = convertNumber(EAnno, "Energy", "HTML", PlantTag)
+                PRAnno = 100 * dfYearStat["etaMean"][0]
+                PRAnno = str(round(PRAnno, 1))+" %"
+                CorrispettivoAnno, dummy = convertNumber(dfYearStat["Resa"][0], "Money", "HTML", PlantTag)
+                CorrispettivoAnno = CorrispettivoAnno + "+RID"
 
                 if len(EMese) == 0:
                     EMese = "Ignoto"
@@ -413,22 +394,26 @@ def main(request):
                     CorrispettivoAnno = df2["ResaAnnoFTV"][0] + " + RID"
 
                 else:
-                    EMese = df["EIncMese"][0]
-                    CorrMese = str(df["CorrMese"][0])+ " + RID"
-                    PRMese = df2["PRMese"][0]
                     Corrispettivo24 = Corrispettivo24 + " + RID"
-                    CorrispettivoAnno = df2["ResaAnnoFTV"][0] + " + RID"
 
             else:
-                EMese = df2["EMese"][0]
-                CorrMese = df2["ResaMese"][0]
-                PRMese = df2["PRMese"][0]
-                CorrispettivoAnno = df2["ResaAnno"][0]
+                EMese, dummy = convertNumber(dfMonthStat["Energy"][0], "Energy", "HTML", PlantTag)
+                CorrMese = dfMonthStat["Resa"][0]
+                CorrMese, dummy = convertNumber(CorrMese, "Money", "HTML", PlantTag)
+                PRMese = 100 * dfMonthStat["etaMean"][0]
+                PRMese = str(round(PRMese, 1))+" %"
+
+                EAnno = dfYearStat["Energy"][0]
+                EAnno, dummy = convertNumber(EAnno, "Energy", "HTML", PlantTag)
+
+                CorrispettivoAnno, dummy = convertNumber(dfYearStat["Resa"][0], "Money", "HTML", PlantTag)
+
             Now = datetime.now().strftime("%Y")
 
             try:
-                PR24Mean = np.nanmean(PR24)
-                PR24Mean = str(round(PR24Mean,1))+" %"
+                PR24Mean = np.nanmean(PR24)*100
+                PR24Mean = str(round(PR24Mean, 1))+" %"
+
             except Exception as err:
                 print(err)
                 PR24Mean = "Ignoto"
@@ -436,8 +421,8 @@ def main(request):
             Graphs = {"Current": GraphData["Grafico"], "eta": GraphEta["GraficoRendimenti"], "lastVar2": lastVar2,
                       "lastP": lastP, "lastPR": lastPR, "PRCol": PRBGCol, "Gauge": datiGaugePower, "Gauge2": datiGauge2, "GaugePR": datiGaugePR, "BlinkCode": BlinkCode,
                       "PowerLedColor": PowerLedColor, "LedColor2": LedColor2,"PRLedColor": PRLedColor, "E24": E24,
-                      "EMonth": EMese, "EAnno": df2["EAnno"][0], "pageColor": pageColor, "PR24": PR24Mean,
-                      "PRMese": PRMese, "PRAnno": df2["PRAnno"][0], "Corrispettivo24": Corrispettivo24,
+                      "EMonth": EMese, "EAnno": EAnno, "pageColor": pageColor, "PR24": PR24Mean,
+                      "PRMese": PRMese, "PRAnno": PRAnno, "Corrispettivo24": Corrispettivo24,
                       "CorrispettivoMese": CorrMese, "CorrispettivoAnno": CorrispettivoAnno, "Year": Now}
 
             Template = "index7.html"
