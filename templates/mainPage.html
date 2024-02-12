@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+     <meta http-equiv="refresh" content="60">
+    <title>Il Grande Occhio</title>
+</head>
+
+<style>
+
+    th, td {
+    padding: 15px;
+  border: 0 solid black;
+  {#  border-radius: 15px;#}
+  {#border-collapse: collapse;#}
+}
+    
+.container {
+	background-size: cover;
+  background: rgb(226,226,226); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(226,226,226,1) 0%, rgba(219,219,219,1) 50%, rgba(209,209,209,1) 51%, rgba(254,254,254,1) 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(226,226,226,1)), color-stop(50%,rgba(219,219,219,1)), color-stop(51%,rgba(209,209,209,1)), color-stop(100%,rgba(254,254,254,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(226,226,226,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(254,254,254,1) 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(226,226,226,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(254,254,254,1) 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(226,226,226,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(254,254,254,1) 100%); /* IE10+ */
+  background: linear-gradient(to bottom,  rgba(226,226,226,1) 0%,rgba(219,219,219,1) 50%,rgba(209,209,209,1) 51%,rgba(254,254,254,1) 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#fefefe',GradientType=0 ); /* IE6-9 */
+  padding: 20px;
+}
+
+.led-box {
+  height: 30px;
+  width: 25%;
+  margin: 10px 0;
+  float: left;
+}
+
+.led-box p {
+  font-size: 12px;
+  text-align: center;
+  margin: 1em;
+}
+
+.led-red {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #F00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+  -webkit-animation: blinkRed 0.5s infinite;
+  -moz-animation: blinkRed 0.5s infinite;
+  -ms-animation: blinkRed 0.5s infinite;
+  -o-animation: blinkRed 0.5s infinite;
+  animation: blinkRed 0.5s infinite;
+}
+
+@-webkit-keyframes blinkRed {
+    from { background-color: #F00; }
+    50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0;}
+    to { background-color: #F00; }
+}
+@-moz-keyframes blinkRed {
+    from { background-color: #F00; }
+    50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0;}
+    to { background-color: #F00; }
+}
+@-ms-keyframes blinkRed {
+    from { background-color: #F00; }
+    50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0;}
+    to { background-color: #F00; }
+}
+@-o-keyframes blinkRed {
+    from { background-color: #F00; }
+    50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0;}
+    to { background-color: #F00; }
+}
+@keyframes blinkRed {
+    from { background-color: #F00; }
+    50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0;}
+    to { background-color: #F00; }
+}
+
+.led-yellow {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #FF0;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 12px;
+  -webkit-animation: blinkYellow 1s infinite;
+  -moz-animation: blinkYellow 1s infinite;
+  -ms-animation: blinkYellow 1s infinite;
+  -o-animation: blinkYellow 1s infinite;
+  animation: blinkYellow 1s infinite;
+
+@-webkit-keyframes blinkYellow {
+    from { background-color: #FF0; }
+    50% { background-color: #AA0; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 0; }
+    to { background-color: #FF0; }
+}
+@-moz-keyframes blinkYellow {
+    from { background-color: #FF0; }
+    50% { background-color: #AA0; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 0; }
+    to { background-color: #FF0; }
+}
+@-ms-keyframes blinkYellow {
+    from { background-color: #FF0; }
+    50% { background-color: #AA0; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 0; }
+    to { background-color: #FF0; }
+}
+@-o-keyframes blinkYellow {
+    from { background-color: #FF0; }
+    50% { background-color: #AA0; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 0; }
+    to { background-color: #FF0; }
+}
+@keyframes blinkYellow {
+    from { background-color: #FF0; }
+    50% { background-color: #AA0; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 0; }
+    to { background-color: #FF0; }
+}
+    
+.led-green {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #ABFF00;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+}
+
+.led-blue {
+  margin: 0 auto;
+  width: 24px;
+  height: 24px;
+  background-color: #24E0FF;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #006 0 -1px 9px, #3F8CFF 0 2px 14px;
+}
+    
+th, td {
+    padding: 15px;
+  border: 0px solid black;
+  {#  border-radius: 15px;#}
+  {#border-collapse: collapse;#}
+}
+{#th {#}
+{#  border: 1px solid black;#}
+{#    border-radius: 10px;#}
+  {#border-collapse: collapse;#}
+{#    font-size: 20px;#}
+{#}#}
+
+</style>
+<center><h1 style="background-color: red; font-size: 50px"><font color=white>ZNews24</font></h1></center>
+<br>
+<body style="background-color:{{pagecolor}};">
+<center>{{ Production | safe }}</center>
+<br>
+<center>{{ Eta | safe }}</center>
+<br>
+<br>
+ <center>
+ <table style="background-color:{{pageColor}}; border-collapse: collapse">
+
+     <tr>
+         <th style="background-color: darkslategrey">
+             <font color="#dcdcdc">
+             <table style="text-align: left; border-collapse: collapse; font-size: 25px; vertical-align: center">
+                 
+                 <tr>
+                     <th style="text-align: right;">Periodo</th><th style="text-align: left;">Prodotta</th>
+                     <th style="text-align: left;">Rendimento</th>
+                     <th style="text-align: left;">Disponibilità</th>
+                     <th style="text-align: left;">Corrispettivo</th>
+                 </tr>
+
+                 <tr>
+                     <th style="text-align: right;">Ultime 24h:</th><th style="text-align: left;">{{ Label.last24h.Energy |safe }}</th>
+                     <th style="text-align: left;">{{ Label.last24h.Eta |safe }}</th>
+                     <th style="text-align: left;">{{ Label.last24h.Av |safe }}</th>
+                     <th style="text-align: left;">{{ Label.last24h.Yeald |safe }}</th>
+                 </tr>
+                 
+                 <tr>
+                     <th style="text-align: right;">Mese:</th><th style="text-align: left;">{{ Label.thisMonth.Energy |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisMonth.Eta |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisMonth.Av |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisMonth.Yeald |safe }}</th>
+                 </tr>
+                 
+                 <tr>
+                     <th style="text-align: right;">Anno:</th><th style="text-align: left;">{{ Label.thisYear.Energy |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisYear.Eta |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisYear.Av |safe }}</th>
+                     <th style="text-align: left;">{{ Label.thisYear.Yeald |safe }}</th>
+                 </tr>
+
+             </table>
+             </font>
+         </th>
+
+         <th>
+             
+ <table style="width:800px; height: 1px">
+  <tr>
+      <th>{{ GaugePower |safe}}<h1 class=blink">  <div class={{ LedPower }}>dffgf</div></h1></th>
+    <th>{{ Gauge2 | safe}}<h1 class=blink"><div class={{ Led2 }}>dffgf</div></h1></th>
+    <th>{{ GaugeEta |safe }}<h1 class=blink"><div class={{ LedEta }}>dffgf</div></h1></th>
+  </tr>
+
+{#   <tr>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{# <th><h1 class="blink">&#128308</h1></th>#}
+{#  <th bgcolor={{ MPColor }}><font color="white">- {{ MP }} €</font></th>#}
+{#  </tr>#}
+</table>
+         </th>
+     </tr>
+ </table>
+ </center>
+{##}
+{#         <font color="#dcdcdc">#}
+{##}
+{#     style="text-align: left; border-width: 1px; background-color: darkslategrey; font-size: 20px"#}
+{##}
+{##}
+{##}
+{# </center>#}
+{#<br>#}
+{#{{ Gauge | safe}}#}
+<br>
+</body>
+</html>
