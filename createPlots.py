@@ -20,7 +20,14 @@ def createEtaPlot(Data):
 
     fig1 = px.line(None, t, eta, template="ggplot2")
     fig1.update_traces(line_color=lineColor)
-    fig1.update_layout(height=300, width=1700, title_text="Rendimenti", margin=dict(r=165))
+    fig1.update_layout(
+        height=500, width=1800,
+        title_text="Rendimenti",
+        margin=dict(l=10, r=10, t=70, b=10),
+        font=dict(
+        size=20,  # Set the font size here
+        color="RebeccaPurple"),
+    )
     tMax = datetime.now()
     tMin = tMax - timedelta(hours=24)
     fig1.update_layout({'xaxis': {'range': [tMin, tMax]}})
@@ -101,7 +108,16 @@ def createProdPlot(Data):
         Title = "San Teodoro"
 
     TitleChSize = 30
-    subfig.update_layout(template=template, height=400, width=1700, title_text=Title, title_font=dict(size=TitleChSize))
+    subfig.update_layout(template=template,
+                         height=500, width=1800,
+                         title_text=Title,
+                         title_font=dict(size=TitleChSize),
+                         margin=dict(l=10, r=10, t=70, b=10),
+                         font=dict(
+                             size=20,  # Set the font size here
+                             color="RebeccaPurple"
+                         ),
+                         )
 
     subfig.layout.yaxis2.color = "blue"
     subfig.update_layout({'xaxis': {'range': [tMin, tMax]}})
