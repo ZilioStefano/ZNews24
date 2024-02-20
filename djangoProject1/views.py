@@ -19,8 +19,10 @@ def readAlarm(Plant):
 
     for row in StatoAllarmi:
         StatoAllarmi = row
-
-    CurrAlarm = StatoAllarmi[Plant]
+    if Plant == "SCN":
+        CurrAlarm = {"SCN1": StatoAllarmi["SCN1"], "SCN2": StatoAllarmi["SCN2"]}
+    else:
+        CurrAlarm = StatoAllarmi[Plant]
 
     return CurrAlarm
 
@@ -40,18 +42,19 @@ def retrieveData(Plant, PlantState):
     else:
         pageColor = "#e2f5ef"
 
-    HTMLData = {"Production": Plots["Production plot"]["Graph"], "Eta": Plots["Eta plot"]["Graph"],
-                "GaugeEta": Gauges["Eta"]["HTML"], "LedEta": Gauges["Eta"]["ledColor"],
-                "GaugePower": Gauges["Power"]["HTML"], "LedPower": Gauges["Power"]["ledColor"],
-                "Gauge2": Gauges["Var2"]["HTML"], "Led2": Gauges["Var2"]["ledColor"], "Label": Label,
-                "pagecolor": pageColor}
+    HTMLData = {
+        "Production": Plots["Production plot"]["Graph"], "Eta": Plots["Eta plot"]["Graph"],
+        "GaugeEta": Gauges["Eta"]["HTML"], "LedEta": Gauges["Eta"]["ledColor"], "GaugePower": Gauges["Power"]["HTML"],
+        "LedPower": Gauges["Power"]["ledColor"], "Gauge2": Gauges["Var2"]["HTML"], "Led2": Gauges["Var2"]["ledColor"],
+        "Label": Label, "pagecolor": pageColor
+    }
 
     return HTMLData
 
 
 def switchPlant():
 
-    Plants = ["TF", "ST", "PAR", "CST", "PG"]
+    Plants = ["SA3", "TF", "ST", "PAR", "CST", "PG", "SCN", "RUB"]
     N = len(Plants)
 
     indexDf = pd.read_csv('current index.csv')
@@ -64,7 +67,8 @@ def switchPlant():
 
 def setTemplate(Plant):
 
-    if Plant == "TF" or Plant == "ST" or Plant == "PAR" or Plant == "SA3" or Plant == "PG" or Plant == "CST":
+    if (Plant == "TF" or Plant == "ST" or Plant == "PAR" or Plant == "SA3" or Plant == "PG" or Plant == "CST"
+            or Plant == "SCN" or Plant == "RUB"):
         Template = "mainPage.html"
 
     else:
@@ -76,6 +80,7 @@ def setTemplate(Plant):
 def main(request):
 
     currPlant = switchPlant()
+    print(currPlant)
     PlantState = readAlarm(currPlant)
     Template = setTemplate(currPlant)
     HTMLData = retrieveData(currPlant, PlantState)

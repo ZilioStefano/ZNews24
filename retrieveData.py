@@ -1,6 +1,6 @@
 from ftplib import FTP
 import pandas as pd
-from createPlots import createProdPlot, createEtaPlot
+from createPlots import createProdPlot, createEtaPlot, createCSTPlot
 from createGauges import createEtaGauge, createPowerGauge, createVar2Gauge
 from num2string import convertNumber as cvN
 import numpy as np
@@ -10,21 +10,40 @@ def createLabel(Data):
 
     last24Data = Data["last24hStat"]
     Elast24, dummy = cvN(last24Data["Energy"][0], "Energy", "HTML", Data["Plant"])
-    Etalast24 = str(round(100 * last24Data["etaMean"][0], 1)) + " %"
-    Av24 = str(round(100 * last24Data["Availability"][0], 1)) + " %"
-    Yealdlast24, dummy = cvN(last24Data["Resa"][0], "Money", "HTML", Data["Plant"])
+
+    if np.isnan(last24Data["etaMean"][0]):
+        Etalast24 = ""
+    else:
+        Etalast24 = str(round(100 * last24Data["etaMean"][0], 1)) + " %"
 
     thisMonthData = Data["thisMonthStat"]
+    thisYearData = Data["thisYearStat"]
+    Plant = Data["Plant"]
+
+    if Plant == "SCN":
+
+        Av24 = str(round(100 * np.mean([last24Data["Availability Inv 1"][0], last24Data["Availability Inv 2"][0]]),1)) + " %"
+        AvthisMonth = str(round(100 * np.mean([thisMonthData["Availability Inv 1"][0], thisMonthData["Availability Inv 2"][0]]), 1)) + " %"
+        AvthisYear = str(round(100 * np.mean([thisYearData["Availability Inv 1"][0], thisYearData["Availability Inv 2"][0]]), 1)) + " %"
+    else:
+        Av24 = str(round(100 * last24Data["Availability"][0],1)) + " %"
+        AvthisMonth = str(round(100 * thisMonthData["Availability"][0], 1)) + " %"
+        AvthisYear = str(round(100 * thisYearData["Availability"][0], 1)) + " %"
+
+    Yealdlast24, dummy = cvN(last24Data["Resa"][0], "Money", "HTML", Data["Plant"])
+
     EthisMonth, dummy = cvN(thisMonthData["Energy"][0], "Energy", "HTML", Data["Plant"])
     EtathisMonth = str(round(100 * thisMonthData["etaMean"][0], 1)) + " %"
-    AvthisMonth = str(round(100 * thisMonthData["Availability"][0], 1)) + " %"
     YeldthisMonth, dummy = cvN(thisMonthData["Resa"][0], "Money", "HTML", Data["Plant"])
 
-    thisYearData = Data["thisYearStat"]
     EthisYear, dummy = cvN(thisYearData["Energy"][0], "Energy", "HTML", Data["Plant"])
     EtathisYear = str(round(100 * thisYearData["etaMean"][0], 1)) + " %"
-    AvthisYear = str(round(100 * thisYearData["Availability"][0], 1)) + " %"
     YeldthisYear, dummy = cvN(thisYearData["Resa"][0], "Money", "HTML", Data["Plant"])
+
+    if Plant == "SCN" or Plant == "RUB":
+        Yealdlast24 = Yealdlast24 + " RID"
+        YeldthisMonth = YeldthisMonth + " RID"
+        YeldthisYear = YeldthisYear + " RID"
 
     Label = {"last24h": {"Energy": Elast24, "Eta": Etalast24, "Av": Av24, "Yeald": Yealdlast24},
              "thisMonth": {"Energy": EthisMonth, "Eta": EtathisMonth, "Av": AvthisMonth, "Yeald": YeldthisMonth},
@@ -35,20 +54,45 @@ def createLabel(Data):
 
 def createGauges(Data):
 
-    dataGauge = {"lastQ": Data["last24hTL"]["Q"].iloc[-1], "lastEta": Data["last24hTL"]["Eta"].iloc[-1],
-                 "Plant": Data["Plant"]}
+    if len(Data["last24hTL"]) == 0:
+        lastQ = float('NaN')
+        lastEta = float('NaN')
+        lastP = float('NaN')
+        lastVar3 = float('NaN')
+
+    else:
+        if Data["PlantType"] == "PV":
+            lastQ = Data["last24hTL"]["I"].iloc[-1]
+            lastVar3 = Data["last24hTL"]["TMod"].iloc[-1]
+
+        else:
+            lastQ = Data["last24hTL"]["Q"].iloc[-1]
+            lastVar3 = Data["last24hTL"]["Bar"].iloc[-1]
+
+        lastEta = Data["last24hTL"]["Eta"].iloc[-1]
+        lastP = Data["last24hTL"]["P"].iloc[-1]
+
+    if np.isnan(lastEta):
+        lastEta = 0
+
+    if np.isnan(lastQ):
+        lastQ = 0
+
+    dataGauge = {"lastQ": lastQ, "lastEta": lastEta,
+                 "Plant": Data["Plant"], "lastVar3": lastVar3}
+
     EtaGaugeData = createEtaGauge(dataGauge)
 
-    dataGauge = {"lastP": Data["last24hTL"]["P"].iloc[-1], "last pressure": Data["last24hTL"]["Bar"].iloc[-1],
-                 "lastQ": Data["last24hTL"]["Q"].iloc[-1], "DatiRef": EtaGaugeData["DatiRef"], "Plant": Data["Plant"],
+    dataGauge = {"lastP": lastP, "last pressure": lastVar3,
+                 "lastQ": lastQ, "DatiRef": EtaGaugeData["DatiRef"], "Plant": Data["Plant"],
                  "PMax": Data["PMax"]}
 
     PowerGaugeData = createPowerGauge(dataGauge)
 
     if Data["Plant"] != "TF" and Data["Plant"] != "SA3":
-        DataQ = Data["last24hTL"]["Q"].iloc[-1] * 1000
+        DataQ = lastQ * 1000
     else:
-        DataQ = Data["last24hTL"]["Q"].iloc[-1]
+        DataQ = lastQ
 
     dataGauge = {"lastVar2": DataQ, "Var2Max": Data["Var2Max"], "udm": Data["Var2udm"],
                  "MeanQ": Data["QMedia"], "DevQ": Data["QDev"], "Plant": Data["Plant"]}
@@ -68,10 +112,16 @@ def createPlots(Data):
     if Plant != "TF" and PlantType == "Hydro":
         dfYearTL["Q"] = dfYearTL["Q"] * 1000
 
-    dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2Max"]}
+    if Plant != "CST":
+        dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
+                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2Max"]}
+        ProductionPlot = createProdPlot(dataPlot)
+        
+    else:
+        dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
+                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2Max"]}
+        ProductionPlot = createCSTPlot(dataPlot)
 
-    ProductionPlot = createProdPlot(dataPlot)
     EtaPlot = createEtaPlot(dataPlot)
 
     Plots = {"Production plot": ProductionPlot, "Eta plot": EtaPlot}
@@ -114,6 +164,16 @@ def readPlantData(Plant):
         udm = " l/s"
         PlantTye = "Hydro"
 
+    elif Plant == "SA3":
+        ftp.cwd('/dati/SA3')
+        PlantType = "Hydro"
+        Var2Max = 80
+        QMedia = 9.77
+        QDev = 9.76
+        PMax = 250
+        udm = " l/s"
+        PlantTye = "Hydro"
+
     elif Plant == "CST":
         ftp.cwd('/dati/San_Teodoro')
         PlantType = "Hydro"
@@ -123,6 +183,23 @@ def readPlantData(Plant):
         QDev = np.sqrt(7.8**2 + 14.4**2)
         udm = " l/s"
         PlantTye = "Hydro"
+    elif Plant == "SCN":
+        ftp.cwd('/dati/SCN')
+        PlantType = "PV"
+        PMax = 926.64
+        Var2Max = 1000
+        QMedia = 800
+        QDev = 200
+        udm = " W/m\u00b2"
+
+    elif Plant == "RUB":
+        ftp.cwd('/dati/Rubino')
+        PlantType = "PV"
+        PMax = 997
+        Var2Max = 1000
+        QMedia = 800
+        QDev = 200
+        udm = " W/m\u00b2"
 
     else:
         ftp.cwd('/dati/San_Teodoro')
@@ -188,8 +265,13 @@ def readPlantData(Plant):
 
     ftp.close()
 
-    Data = {"last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
+    Data = {
+            "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
             "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2Max": Var2Max, "Var2udm": udm,
-            "QMedia": QMedia, "QDev": QDev}
+            "QMedia": QMedia, "QDev": QDev
+            }
+
+    if Plant == "CST":
+        B = 2
 
     return Data

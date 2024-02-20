@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,10 +19,11 @@
         }
 
         .box {
-            background-image: linear-gradient(to right, white, lightgray);
-            border: solid 1px black;
+            /*background-image: linear-gradient(to bottom, grey, lightgray);*/
+            background-color: darkslategrey;
+            border: solid 1px white;
             width: fit-content; /* Can be in percentage also. */
-            height: auto;
+            height: 100%;
             margin: 0 auto;
             padding: 10px;
             position: relative;
@@ -37,12 +37,15 @@
             grid-area: grafico1;
             padding-left: 30px;
             width: fit-content;
+            background-color: {{pagecolor}};
         }
 
         .grafico2 {
             grid-area: grafico2;
             padding-left: 30px;
             width: fit-content;
+            background-color: {{pagecolor}};
+
         }
 
         .gauges {
@@ -303,8 +306,8 @@
         </table>
     </div>
 
-    <div class="bx under" style="background-color: darkslategrey; color: #dcdcdc">
-        <table style="text-align: right; font-size: 25px">
+    <div class="box" style="background-color: darkslategrey; color: white;">
+        <table style="text-align: right; font-size: 20px">
             <tr>
                 <th style="text-align: right;">Periodo</th><th style="text-align: left;">Prodotta</th>
                 <th style="text-align: right;">Rendimento</th>
