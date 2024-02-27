@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+<DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,14 +21,35 @@
         .box {
             /*background-image: linear-gradient(to bottom, grey, lightgray);*/
             background-color: darkslategrey;
-            border: solid 1px white;
+            /*border: solid 1px white;*/
             width: fit-content; /* Can be in percentage also. */
-            height: 100%;
+            height: 80%;
             margin: 0 auto;
             padding: 10px;
             position: relative;
         }
+        .boxGauge {
+            /*background-image: linear-gradient(to bottom, grey, lightgray);*/
+            background-color: darkslategrey;
+            border: solid 1px white;
+            width: 50%; /* Can be in percentage also. */
+            height: 80%;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+            align-items: center;
+        }
 
+        .boxLabel {
+            /*background-image: linear-gradient(to bottom, grey, lightgray);*/
+            background-color: darkslategrey;
+            border: solid 1px white;
+            width: fit-content; /* Can be in percentage also. */
+            height: 40%;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+        }
         .titlepage {
             grid-area: titlepage;
         }
@@ -37,7 +58,7 @@
             grid-area: grafico1;
             padding-left: 30px;
             width: fit-content;
-            background-color: {{pagecolor}};
+            background-color:{{pagecolor}};
         }
 
         .grafico2 {
@@ -275,7 +296,7 @@
 </head>
 
 
-<body>
+<body style="background-color: {{pagecolor}}">
 <div class="wrap_container" style="background-color:{{pagecolor}};">
 
     <div class="titlepage">
@@ -285,29 +306,16 @@
     <div class="box grafico1">{{ Production | safe }}</div>
 
     <div class="box grafico2">{{ Eta | safe }}</div>
-
-    <div class="box gauges">
-        <table>
-            <tr>
-            <td>
-             {{ GaugePower |safe}}
-             <div style="position: relative; top: -50px;" class={{ LedPower }}></div>
-            </td>
-
-            <td>
-             {{ Gauge2 | safe}}
-             <div style="position: relative; top: -50px;" class={{ Led2 }}></div>
-            </td>
-            <td>
-             {{ GaugeEta |safe }}
-             <div style="position: relative; top: -50px;" class={{ LedEta }}></div>
-            </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="box" style="background-color: darkslategrey; color: white;">
-        <table style="text-align: right; font-size: 20px">
+</div>
+<br>
+<br>
+<br>
+<center>
+<table style="align-content: center; background-color: darkslategrey">
+<!--<div style="background-color:{{pagecolor}}; height: 500%">-->
+    <tr>
+    <div>
+        <table style="text-align: right; font-size: 20px; background-color: darkslategrey; color: white;">
             <tr>
                 <th style="text-align: right;">Periodo</th><th style="text-align: left;">Prodotta</th>
                 <th style="text-align: right;">Rendimento</th>
@@ -327,7 +335,7 @@
                 <th style="text-align: right;">{{ Label.thisMonth.Av |safe }}</th>
                 <th style="text-align: right;">{{ Label.thisMonth.Yeald |safe }}</th>
             </tr>
-                 
+
             <tr>
                 <th style="text-align: right;">Anno:</th><th style="text-align: right;">{{ Label.thisYear.Energy |safe }}</th>
                 <th style="text-align: right;">{{ Label.thisYear.Eta |safe }}</th>
@@ -336,6 +344,36 @@
             </tr>
         </table>
     </div>
-</div>
+    <tr>
+    <div style="background-color: {{pagecolor}}; color: white;">
+        <table style="width: 10%">
+            <tr>
+            <td>
+                <div>{{ GaugePower |safe}}</div>
+
+             <div style="position: relative;" class={{ LedPower }}></div>
+            </td>
+
+            <td>
+                <div>{{ Gauge2 | safe}}</div>
+             <div style="position: relative;" class={{ Led2 }}></div>
+            </td>
+            <td>
+                <div>{{ GaugeEta |safe }}</div>
+
+             <div style="position: relative;" class={{ LedEta }}></div>
+            </td>
+
+            <td>
+             {{ Gauge3 |safe }}
+             <div style="position: relative;" class={{ Led3 }}></div>
+            </td>
+
+            </tr>
+        </table>
+    </div>
+    </tr>
+</table>
+</center>
 </body>
 </html>

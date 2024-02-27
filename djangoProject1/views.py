@@ -21,6 +21,7 @@ def readAlarm(Plant):
         StatoAllarmi = row
     if Plant == "SCN":
         CurrAlarm = {"SCN1": StatoAllarmi["SCN1"], "SCN2": StatoAllarmi["SCN2"]}
+
     else:
         CurrAlarm = StatoAllarmi[Plant]
 
@@ -46,6 +47,7 @@ def retrieveData(Plant, PlantState):
         "Production": Plots["Production plot"]["Graph"], "Eta": Plots["Eta plot"]["Graph"],
         "GaugeEta": Gauges["Eta"]["HTML"], "LedEta": Gauges["Eta"]["ledColor"], "GaugePower": Gauges["Power"]["HTML"],
         "LedPower": Gauges["Power"]["ledColor"], "Gauge2": Gauges["Var2"]["HTML"], "Led2": Gauges["Var2"]["ledColor"],
+        "Gauge3": Gauges["Var3"]["HTML"], "Led3": Gauges["Var3"]["ledColor"],
         "Label": Label, "pagecolor": pageColor
     }
 

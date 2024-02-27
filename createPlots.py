@@ -6,7 +6,6 @@ import numpy as np
 
 
 def createEtaPlot(Data):
-
     State = Data["Plant state"]
 
     if State == "W":
@@ -16,7 +15,6 @@ def createEtaPlot(Data):
 
     t = Data["Timeline"]["t"]
     t = pd.to_datetime(t)
-    Yesterday = datetime.now() - timedelta(days=1)
 
     tMax = datetime.now()
     tMin = tMax - timedelta(days=1)
@@ -38,19 +36,24 @@ def createEtaPlot(Data):
 
         eta = etaNew
         t = tNew
-        
+
         t = pd.to_datetime(t)
         eta = np.array(eta)
 
     fig1 = px.line(None, t, eta, template="ggplot2")
     fig1.update_traces(line_color=lineColor)
+    if Data["Plant"] == "CST":
+        right_margin = 225
+    else:
+        right_margin = 110
+
     fig1.update_layout(
         height=500, width=1800,
         title_text="Rendimenti",
-        margin=dict(l=10, r=110, t=70, b=10),
+        margin=dict(l=10, r=right_margin, t=70, b=10),
         font=dict(
-        size=20,  # Set the font size here
-        color="RebeccaPurple"),
+            size=20,  # Set the font size here
+            color="RebeccaPurple"),
     )
 
     fig1.update_layout({'xaxis': {'range': [tMin, tMax]}})
@@ -58,9 +61,10 @@ def createEtaPlot(Data):
         etaMax = 150
     else:
         etaMax = 100
-        
-    if len(eta[t >= tMin]) > 0 and np.isnan(eta).any() == False:
-        fig1.update_layout({'yaxis': {'range': [min(eta[(t >= tMin) & (eta<etaMax) ]), max(max(eta[(t >= tMin) & (eta<etaMax)]), etaMax)]}})
+
+    if len(eta[t >= tMin]) > 0 and not np.isnan(eta).any():
+        fig1.update_layout({'yaxis': {
+            'range': [min(eta[(t >= tMin) & (eta < etaMax)]), max(max(eta[(t >= tMin) & (eta < etaMax)]), etaMax)]}})
 
     fig1.layout.yaxis.title = "Rendimento [%]"
     fig1.layout.xaxis.title = ""
@@ -72,7 +76,6 @@ def createEtaPlot(Data):
 
 
 def createProdPlot(Data):
-
     State = Data["Plant state"]
     PlantType = Data["Plant type"]
     Plant = Data["Plant"]
@@ -121,7 +124,7 @@ def createProdPlot(Data):
         P = PNew
         t = tNew
         Var2 = QNew
-        
+
     PMin = min(P)
     PMax = max(P)
 
@@ -188,38 +191,30 @@ def createProdPlot(Data):
 
 
 def createCSTPlot(Data):
-    
     State = Data["Plant state"]
     PlantType = Data["Plant type"]
     Plant = Data["Plant"]
 
     if State == "W":
-        AreaColor = "grey"
         lineColor = "grey"
 
     else:
         if PlantType == "PV":
             lineColor = 'orange'
-            AreaColor = 'green'
         else:
             lineColor = 'blue'
-            AreaColor = 'green'
 
     template = "ggplot2"
 
     t = Data["Timeline"]["t"]
     # t = pd.to_datetime(t)
     P = Data["Timeline"]["P"]
-    PST = Data["Timeline"]["PST"]
-    PPAR = Data["Timeline"]["PPAR"]
 
     tMax = datetime.now()
     tMin = tMax - timedelta(hours=24)
 
     tNew = []
     PNew = []
-    PST = []
-    PPAR = []
     QNew = []
     tCurr = tMin
 
@@ -240,8 +235,7 @@ def createCSTPlot(Data):
             PPARNew.append(float('NaN'))
             QNew.append(float('NaN'))
             tCurr = tCurr + timedelta(hours=1)
-        PST = PSTNew
-        PPAR = PPARNew
+            
         P = PNew
         t = tNew
         Var2 = QNew
@@ -253,11 +247,7 @@ def createCSTPlot(Data):
     Var2Max = max(Var2)
 
     fig1 = px.area(Data["Timeline"], x="t", y=["PST", "PPAR"], labels={"ST": "San Teodoro", "PAR": "Partitore"},
-                            range_x=[tMin, tMax])
-    
-    # fig2 = px.line(Data["Timeline"], x="t", y="Q")
-    # fig1 = px.area(None, t, P, template=template)
-    # fig1.update_traces(yaxis="y1", line_color='red')
+                   range_x=[tMin, tMax])
 
     fig2 = px.line(None, t, Var2, template=template, range_x=[tMin, tMax])
     fig2.update_layout({'xaxis': {'range': [tMin, tMax]}})
@@ -268,7 +258,6 @@ def createCSTPlot(Data):
 
     subfig.layout.xaxis.title = ""
     subfig.layout.yaxis.title = "Potenza [kW]"
-    # subfig.layout.yaxis.color = "green"
     subfig.layout.yaxis2.color = "blue"
     subfig.layout.yaxis2.title = "Portata [l/s]"
 
@@ -313,4 +302,3 @@ def createCSTPlot(Data):
     PlotData = {"Graph": GraphData}
 
     return PlotData
-

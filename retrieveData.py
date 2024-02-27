@@ -1,7 +1,7 @@
 from ftplib import FTP
 import pandas as pd
 from createPlots import createProdPlot, createEtaPlot, createCSTPlot
-from createGauges import createEtaGauge, createPowerGauge, createVar2Gauge
+from createGauges import createEtaGauge, createPowerGauge, createVar2Gauge, createVar3Gauge
 from num2string import convertNumber as cvN
 import numpy as np
 
@@ -55,18 +55,18 @@ def createLabel(Data):
 def createGauges(Data):
 
     if len(Data["last24hTL"]) == 0:
-        lastQ = float('NaN')
+        lastVar2 = float('NaN')
         lastEta = float('NaN')
         lastP = float('NaN')
         lastVar3 = float('NaN')
 
     else:
         if Data["PlantType"] == "PV":
-            lastQ = Data["last24hTL"]["I"].iloc[-1]
+            lastVar2 = Data["last24hTL"]["I"].iloc[-1]
             lastVar3 = Data["last24hTL"]["TMod"].iloc[-1]
 
         else:
-            lastQ = Data["last24hTL"]["Q"].iloc[-1]
+            lastVar2 = Data["last24hTL"]["Q"].iloc[-1]
             lastVar3 = Data["last24hTL"]["Bar"].iloc[-1]
 
         lastEta = Data["last24hTL"]["Eta"].iloc[-1]
@@ -75,30 +75,38 @@ def createGauges(Data):
     if np.isnan(lastEta):
         lastEta = 0
 
-    if np.isnan(lastQ):
-        lastQ = 0
+    if np.isnan(lastVar2):
+        lastVar2 = 0
 
-    dataGauge = {"lastQ": lastQ, "lastEta": lastEta,
-                 "Plant": Data["Plant"], "lastVar3": lastVar3}
+    dataGauge = {
+        "lastVar2": lastVar2, "lastEta": lastEta, "Plant": Data["Plant"], "lastVar3": lastVar3,
+        "etaName": Data["etaName"]
+    }
 
     EtaGaugeData = createEtaGauge(dataGauge)
 
-    dataGauge = {"lastP": lastP, "last pressure": lastVar3,
-                 "lastQ": lastQ, "DatiRef": EtaGaugeData["DatiRef"], "Plant": Data["Plant"],
-                 "PMax": Data["PMax"]}
+    dataGauge = {"lastP": lastP, "lastVar3": lastVar3, "lastVar2": lastVar2, "DatiRef": EtaGaugeData["DatiRef"],
+                 "Plant": Data["Plant"], "etaName": Data["etaName"], "PMax": Data["PMax"], "PN": Data["PN"]}
 
     PowerGaugeData = createPowerGauge(dataGauge)
 
-    if Data["Plant"] != "TF" and Data["Plant"] != "SA3":
-        DataQ = lastQ * 1000
+    if Data["Plant"] != "TF" and Data["Plant"] != "SA3" and Data["Plant"] != "SCN":
+        DataQ = lastVar2 * 1000
     else:
-        DataQ = lastQ
+        DataQ = lastVar2
 
-    dataGauge = {"lastVar2": DataQ, "Var2Max": Data["Var2Max"], "udm": Data["Var2udm"],
-                 "MeanQ": Data["QMedia"], "DevQ": Data["QDev"], "Plant": Data["Plant"]}
+    dataGauge = {
+        "lastVar2": DataQ, "Var2Max": Data["Var2Max"], "udm": Data["Var2udm"], "Var2name": Data["Var2name"],
+        "MeanVar2": Data["Var2Media"], "DevVar2": Data["Var2Dev"], "Plant": Data["Plant"]
+    }
+
     Var2GaugeData = createVar2Gauge(dataGauge)
 
-    GaugeData = {"Eta": EtaGaugeData, "Var2": Var2GaugeData, "Power": PowerGaugeData}
+    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3Max"], "udm": Data["Var3udm"], "Var3name": Data["Var3name"],
+                 "MeanVar3": Data["Var3Media"], "DevVar3": Data["Var3Dev"], "Plant": Data["Plant"]}
+    Var3GaugeData = createVar3Gauge(dataGauge)
+
+    GaugeData = {"Eta": EtaGaugeData, "Var2": Var2GaugeData, "Power": PowerGaugeData, "Var3": Var3GaugeData}
 
     return GaugeData
 
@@ -137,79 +145,111 @@ def readPlantData(Plant):
     if Plant == "ST":
         ftp.cwd('/dati/San_Teodoro')
         PlantType = "Hydro"
-        PMax = 259.30
+        PMax = 260
         Var2Max = 80
-        QMedia = 66.8
-        QDev = 14.4
-        udm = " l/s"
-        PlantTye = "Hydro"
+        Var2Media = 69.4
+        Var2Dev = 15
+        Var3Media = 27.1
+        Var3Dev = 0.5
+        Var3Max = 40
+        PN = PMax
 
     elif Plant == "TF":
         ftp.cwd('/dati/Torrino_Foresta')
         PlantType = "Hydro"
         PMax = 400
         Var2Max = 3
-        QMedia = 1.94
-        QDev = 0.09
-        udm = "m\u00b3/s"
-        PlantTye = "Hydro"
+        Var2Media = 0.9787
+        Var2Dev = 0.983
+        Var3Media = 1.41
+        Var3Dev = 0.04
+        Var3Max = 2
+        PN = PMax
 
     elif Plant == "PG":
         ftp.cwd('/dati/ponte_giurino')
         PlantType = "Hydro"
         Var2Max = 80
-        QMedia = 9.77
-        QDev = 9.76
+        Var2Media = 12
+        Var2Dev = 15
+        Var3Media = 31.5
+        Var3Dev = 0.9
         PMax = 250
-        udm = " l/s"
-        PlantTye = "Hydro"
+        Var3Max = 50
+        PN = PMax
 
     elif Plant == "SA3":
         ftp.cwd('/dati/SA3')
         PlantType = "Hydro"
         Var2Max = 80
-        QMedia = 9.77
-        QDev = 9.76
+        Var2Media = 9.77
+        Var2Dev = 9.76
         PMax = 250
-        udm = " l/s"
-        PlantTye = "Hydro"
+        Var3Media = 1.5
+        Var3Max = 3
+        Var3Dev = 1
+        PN = PMax
 
     elif Plant == "CST":
         ftp.cwd('/dati/San_Teodoro')
         PlantType = "Hydro"
-        PMax = 259.30 + 100
+        PMax = 260 + 100
         Var2Max = 110
-        QMedia = 22.4 + 66.8
-        QDev = np.sqrt(7.8**2 + 14.4**2)
-        udm = " l/s"
-        PlantTye = "Hydro"
+        Var2Media = 26 + 69.4
+        Var2Dev = np.sqrt(6 ** 2 + 15 ** 2)
+        Var3Media = (27.1 + 26.9) / 2
+        Var3Dev = 0.5 * np.sqrt(0.5 ** 2 + 0.5 ** 2)
+        Var3Max = 36
+        PN = PMax
+
     elif Plant == "SCN":
         ftp.cwd('/dati/SCN')
         PlantType = "PV"
-        PMax = 926.64
+        PMax = 930
         Var2Max = 1000
-        QMedia = 800
-        QDev = 200
-        udm = " W/m\u00b2"
+        Var2Media = 390
+        Var2Dev = 333
+        Var3Media = 27
+        Var3Dev = 14
+        Var3Max = 70
+        PN = 927
 
     elif Plant == "RUB":
         ftp.cwd('/dati/Rubino')
         PlantType = "PV"
-        PMax = 997
+        PMax = 998
         Var2Max = 1000
-        QMedia = 800
-        QDev = 200
-        udm = " W/m\u00b2"
+        Var2Media = 469
+        Var2Dev = 327
+        Var3Max = 1300
+        Var3Media = 19
+        Var3Dev = 16
+        PN = 997
 
     else:
         ftp.cwd('/dati/San_Teodoro')
         PlantType = "Hydro"
         PMax = 100
         Var2Max = 30
-        QMedia = 22.4
-        QDev = 7.8
-        udm = " l/s"
-        PlantTye = "Hydro"
+        Var2Media = 26
+        Var2Dev = 6
+        Var3Media = 26.9
+        Var3Dev = 0.5
+        Var3Max = 36
+        PN = PMax
+
+    if PlantType == "Hydro":
+        udmVar2 = "l/s"
+        nameVar2 = "Q"
+        udmVar3 = "barg"
+        nameVar3 = "h"
+        etaName = "\u03b7"
+    else:
+        udmVar2 = "W/m\u00b2"
+        nameVar2 = "I"
+        udmVar3 = "°C"
+        nameVar3 = "T"
+        etaName = "PR"
 
     last24File = Plant + "last24hTL.csv"
 
@@ -220,6 +260,7 @@ def readPlantData(Plant):
 
     df24hTL["PMax"] = PMax
     df24hTL["Var2Max"] = Var2Max
+    df24hTL["Var3Max"] = Var3Max
 
     thisYearFile = Plant + "YearTL.csv"
 
@@ -230,6 +271,7 @@ def readPlantData(Plant):
 
     thisYearTL["PMax"] = PMax
     thisYearTL["Var2Max"] = Var2Max
+    thisYearTL["Var3Max"] = Var3Max
 
     last24StatFile = Plant + "last24hStat.csv"
 
@@ -240,6 +282,7 @@ def readPlantData(Plant):
 
     last24Stat["PMax"] = PMax
     last24Stat["Var2Max"] = Var2Max
+    last24Stat["Var3Max"] = Var3Max
 
     last24File = Plant + "last24hTL.csv"
 
@@ -252,6 +295,7 @@ def readPlantData(Plant):
 
     thisMonthStat["PMax"] = PMax
     thisMonthStat["Var2Max"] = Var2Max
+    thisMonthStat["Var3Max"] = Var3Max
 
     thisYearStatFile = Plant + "YearStat.csv"
 
@@ -262,13 +306,15 @@ def readPlantData(Plant):
 
     thisYearStat["PMax"] = PMax
     thisYearStat["Var2Max"] = Var2Max
+    thisYearStat["Var3Max"] = Var3Max
 
     ftp.close()
 
     Data = {
-            "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
-            "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2Max": Var2Max, "Var2udm": udm,
-            "QMedia": QMedia, "QDev": QDev
+        "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
+        "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2Max": Var2Max, "Var2udm": udmVar2,
+        "Var2name": nameVar2, "Var2Media": Var2Media, "Var2Dev": Var2Dev, "Var3Max": Var3Max, "Var3Media": Var3Media,
+        "Var3Dev": Var3Dev, "Var3udm": udmVar3, "Var3name": nameVar3, "etaName": etaName, "PN": PN
             }
 
     if Plant == "CST":
