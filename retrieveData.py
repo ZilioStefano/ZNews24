@@ -96,14 +96,14 @@ def createGauges(Data):
         DataQ = lastVar2
 
     dataGauge = {
-        "lastVar2": DataQ, "Var2Max": Data["Var2Max"], "udm": Data["Var2udm"], "Var2name": Data["Var2name"],
-        "MeanVar2": Data["Var2Media"], "DevVar2": Data["Var2Dev"], "Plant": Data["Plant"]
+        "lastVar2": DataQ, "Var2Max": Data["Var2"]["Max"], "udm": Data["Var2"]["udm"], "Var2name": Data["Var2"]["name"],
+        "MeanVar2": Data["Var2"]["Media"], "DevVar2": Data["Var2"]["Dev"], "Plant": Data["Plant"]
     }
 
     Var2GaugeData = createVar2Gauge(dataGauge)
 
-    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3Max"], "udm": Data["Var3udm"], "Var3name": Data["Var3name"],
-                 "MeanVar3": Data["Var3Media"], "DevVar3": Data["Var3Dev"], "Plant": Data["Plant"]}
+    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3"]["Max"], "udm": Data["Var3"]["udm"], "Var3name": Data["Var3"]["name"],
+                 "MeanVar3": Data["Var3"]["Media"], "DevVar3": Data["Var3"]["Dev"], "Plant": Data["Plant"]}
     Var3GaugeData = createVar3Gauge(dataGauge)
 
     GaugeData = {"Eta": EtaGaugeData, "Var2": Var2GaugeData, "Power": PowerGaugeData, "Var3": Var3GaugeData}
@@ -122,12 +122,12 @@ def createPlots(Data):
 
     if Plant != "CST":
         dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2Max"]}
+                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"], "Var2udm": Data["Var2"]["udm"]}
         ProductionPlot = createProdPlot(dataPlot)
         
     else:
         dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2Max"]}
+                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"]}
         ProductionPlot = createCSTPlot(dataPlot)
 
     EtaPlot = createEtaPlot(dataPlot)
@@ -153,6 +153,7 @@ def readPlantData(Plant):
         Var3Dev = 0.5
         Var3Max = 40
         PN = PMax
+        udmVar2 = "l/s"
 
     elif Plant == "TF":
         ftp.cwd('/dati/Torrino_Foresta')
@@ -165,6 +166,7 @@ def readPlantData(Plant):
         Var3Dev = 0.04
         Var3Max = 2
         PN = PMax
+        udmVar2 = "m\u00b3/s"
 
     elif Plant == "PG":
         ftp.cwd('/dati/ponte_giurino')
@@ -177,6 +179,7 @@ def readPlantData(Plant):
         PMax = 250
         Var3Max = 50
         PN = PMax
+        udmVar2 = "l/s"
 
     elif Plant == "SA3":
         ftp.cwd('/dati/SA3')
@@ -189,6 +192,7 @@ def readPlantData(Plant):
         Var3Max = 3
         Var3Dev = 1
         PN = PMax
+        udmVar2 = "m\u00b3/s"
 
     elif Plant == "CST":
         ftp.cwd('/dati/San_Teodoro')
@@ -196,11 +200,13 @@ def readPlantData(Plant):
         PMax = 260 + 100
         Var2Max = 110
         Var2Media = 26 + 69.4
-        Var2Dev = np.sqrt(6 ** 2 + 15 ** 2)
+        Var2Dev = np.sqrt(15 ** 2 + 15 ** 2)
         Var3Media = (27.1 + 26.9) / 2
         Var3Dev = 0.5 * np.sqrt(0.5 ** 2 + 0.5 ** 2)
         Var3Max = 36
         PN = PMax
+        udmVar2 = "l/s"
+
 
     elif Plant == "SCN":
         ftp.cwd('/dati/SCN')
@@ -218,7 +224,7 @@ def readPlantData(Plant):
         ftp.cwd('/dati/Rubino')
         PlantType = "PV"
         PMax = 998
-        Var2Max = 1000
+        Var2Max = 1300
         Var2Media = 469
         Var2Dev = 327
         Var3Max = 1300
@@ -237,9 +243,10 @@ def readPlantData(Plant):
         Var3Dev = 0.5
         Var3Max = 36
         PN = PMax
+        udmVar2 = "l/s"
+
 
     if PlantType == "Hydro":
-        udmVar2 = "l/s"
         nameVar2 = "Q"
         udmVar3 = "barg"
         nameVar3 = "h"
@@ -311,11 +318,11 @@ def readPlantData(Plant):
     ftp.close()
 
     Data = {
-        "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
-        "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2Max": Var2Max, "Var2udm": udmVar2,
-        "Var2name": nameVar2, "Var2Media": Var2Media, "Var2Dev": Var2Dev, "Var3Max": Var3Max, "Var3Media": Var3Media,
-        "Var3Dev": Var3Dev, "Var3udm": udmVar3, "Var3name": nameVar3, "etaName": etaName, "PN": PN
-            }
+            "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
+            "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2": {"Max": Var2Max, "udm": udmVar2,
+            "name": nameVar2, "Media": Var2Media, "Dev": Var2Dev}, "Var3": {"Max": Var3Max, "Media": Var3Media,
+            "Dev": Var3Dev, "udm": udmVar3, "name": nameVar3}, "etaName": etaName, "PN": PN
+        }
 
     if Plant == "CST":
         B = 2

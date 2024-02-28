@@ -76,6 +76,7 @@ def createEtaPlot(Data):
 
 
 def createProdPlot(Data):
+
     State = Data["Plant state"]
     PlantType = Data["Plant type"]
     Plant = Data["Plant"]
@@ -144,11 +145,11 @@ def createProdPlot(Data):
     subfig.layout.xaxis.title = ""
     subfig.layout.yaxis.title = "Potenza [kW]"
     subfig.layout.yaxis.color = "green"
-    subfig.layout.yaxis2.color = "blue"
-    subfig.layout.yaxis2.title = "Portata [l/s]"
+    subfig.layout.yaxis2.color = lineColor
+    subfig.layout.yaxis2.title = Data["Var2udm"]
 
     if Plant == "TF":
-        subfig.layout.yaxis2.title = "Portata [m^3/s]"
+        # subfig.layout.yaxis2.title = "Portata [m^3/s]"
         Title = "Torrino Foresta"
 
     elif Plant == "PAR":
@@ -162,6 +163,7 @@ def createProdPlot(Data):
         Title = "SA3"
     elif Plant == "SCN":
         Title = "SCN Pilota"
+
     elif Plant == "RUB":
         Title = "Rubino"
     else:
@@ -179,7 +181,7 @@ def createProdPlot(Data):
                          ),
                          )
 
-    subfig.layout.yaxis2.color = "blue"
+    # subfig.layout.yaxis2.color = "blue"
     subfig.update_layout({'xaxis': {'range': [tMin, tMax]}})
     subfig.update_layout({'yaxis': {'range': [min(0, PMin), max(Data["PMax"], PMax)]}})
     subfig.update_layout({'yaxis2': {'range': [min(0, Var2Min), max(Data["Var2Max"], Var2Max)]}})
@@ -258,7 +260,7 @@ def createCSTPlot(Data):
 
     subfig.layout.xaxis.title = ""
     subfig.layout.yaxis.title = "Potenza [kW]"
-    subfig.layout.yaxis2.color = "blue"
+    subfig.layout.yaxis2.color = lineColor
     subfig.layout.yaxis2.title = "Portata [l/s]"
 
     if Plant == "TF":
