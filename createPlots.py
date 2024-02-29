@@ -48,7 +48,7 @@ def createEtaPlot(Data):
         right_margin = 110
 
     fig1.update_layout(
-        height=500, width=1800,
+        height=500, width=1500,
         title_text="Rendimenti",
         margin=dict(l=10, r=right_margin, t=70, b=10),
         font=dict(
@@ -171,7 +171,7 @@ def createProdPlot(Data):
 
     TitleChSize = 30
     subfig.update_layout(template=template,
-                         height=500, width=1800,
+                         height=500, width=1500,
                          title_text=Title,
                          title_font=dict(size=TitleChSize),
                          margin=dict(l=10, r=10, t=70, b=10),

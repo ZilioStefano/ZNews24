@@ -1,6 +1,7 @@
 import numpy as np
 import panel as pn
 import pandas as pd
+pn.extension('echarts')
 
 
 def ExpectedEta(lastVar2, Plant, lastVar3):
@@ -135,12 +136,14 @@ def createPowerGauge(Data):
         annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                      "axisLabel": {
-                         "color": 'gray'  # , "font": {"size": 8}
+                         "color": 'black', "fontSize": 10,
                      }, "detail": {"color": value_color,
-                                   "fontSize": 20}, "series": {"color": 'black', "fontSize": 2},
+                                   "fontSize": 10}, "series": {"color": 'black', "fontSize": 2},
                      "radius": '75%', "nan_format": "-"}
     )
 
+    fig.width = 250
+    fig.height = 250
     fig.save('graph.html', embed=True, embed_json=True)
 
     GaugUp = open('graph.html', 'r')
@@ -194,15 +197,18 @@ def createEtaGauge(Data):
         colors=[(100*etaMinus/etaMax, 'red'), (100*etaPlus/etaMax, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                                           "axisLabel": {
-                                              "color": 'black',
+                                              "color": 'black', "fontSize": 10,
                                           },
 
                                           "detail": {"color": value_color,
-                                                        "fontSize": 20},
+                                                        "fontSize": 10},
                      "radius": '75%'}
     )
+    # gauge_pane = pn.pane.ECharts(fig, width=100, height=100)
 
-    fig.save('graph.html', embed=True, embed_json=True)
+    fig.width = 250
+    fig.height = 250
+    fig.save('graph.html')#, embed=True, embed_json=True)
 
     GaugUp = open('graph.html', 'r')
 
@@ -242,11 +248,14 @@ def createVar2Gauge(Data):
         colors=[(Var2Minus / Var2Max, 'red'), (Var2Plus / Var2Max, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                      "axisLabel": {
-                         "color": 'black',
+                         "color": 'black', "fontSize": 10,
                      },
-                     "detail": {"color": value_color, "fontSize": 20},
+                     "detail": {"color": value_color, "fontSize": 10},
                      "radius": '75%'}
     )
+
+    fig2.width = 250
+    fig2.height = 250
 
     fig2.save('graph2.html', embed=True, embed_json=True)
 
@@ -290,11 +299,14 @@ def createVar3Gauge(Data):
         colors=[(Var3Minus/Var3Max, 'red'), (Var3Plus/Var3Max, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                      "axisLabel": {
-                         "color": 'black',
+                         "color": 'black', "fontSize": 10,
                      },
-                     "detail": {"color": value_color, "fontSize": 20},
+                     "detail": {"color": value_color, "fontSize": 10},
                      "radius": '75%'}
     )
+
+    fig2.width = 250
+    fig2.height = 250
 
     fig2.save('graph3.html', embed=True, embed_json=True)
 
