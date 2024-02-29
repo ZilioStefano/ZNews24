@@ -64,7 +64,7 @@ def ExpectedEta(lastVar2, Plant, lastVar3):
         
         if np.isnan(lastVar3):
             lastVar3 = 0
-
+        FinalJ = 1
         while lastVar3 > Var3Test and j < len(AsseVar3):
             j = j + 1
             if j >= len(AsseVar3):
@@ -125,7 +125,6 @@ def createPowerGauge(Data):
     pointer_path = 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z'
 
     if np.isnan(lastP) == 0:
-
         shownP = round(lastP)
     else:
         shownP = 0
@@ -138,8 +137,8 @@ def createPowerGauge(Data):
                      "axisLabel": {
                          "color": 'black', "fontSize": 10,
                      }, "detail": {"color": value_color,
-                                   "fontSize": 10}, "series": {"color": 'black', "fontSize": 2},
-                     "radius": '75%', "nan_format": "-"}
+                                   "fontSize": 14}, "series": {"color": 'black', "fontSize": 2},
+                     "radius": '90%', "nan_format": "-"}
     )
 
     fig.width = 250
@@ -192,8 +191,13 @@ def createEtaGauge(Data):
 
     pointer_path = 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z'
 
+    if np.isnan(lastEta) == 0:
+        shownEta = round(100 * lastEta, 1)
+    else:
+        shownEta = 0
+
     fig = pn.indicators.Gauge(
-        name=name, value=round(100 * lastEta, 1), bounds=(0, etaMax), format='{value} %',
+        name=name, value=shownEta, bounds=(0, etaMax), format='{value} %',
         colors=[(100*etaMinus/etaMax, 'red'), (100*etaPlus/etaMax, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                                           "axisLabel": {
@@ -201,8 +205,8 @@ def createEtaGauge(Data):
                                           },
 
                                           "detail": {"color": value_color,
-                                                        "fontSize": 10},
-                     "radius": '75%'}
+                                                        "fontSize": 14},
+                     "radius": '90%', "nan_format": "-"}
     )
     # gauge_pane = pn.pane.ECharts(fig, width=100, height=100)
 
@@ -234,24 +238,31 @@ def createVar2Gauge(Data):
     if lastVar2 < Var2Minus:
         ledColor = "led-red"
         value_color ="red"
+
     elif lastVar2 > Var2Plus:
         ledColor = "led-green"
         value_color ="green"
+
     else:
         ledColor = "led-yellow"
         value_color ="black"
 
     pointer_path = 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z'
 
+    if np.isnan(lastVar2) == 0:
+        shownLastVar2 = round(lastVar2, 1)
+    else:
+        shownLastVar2 = 0
+
     fig2 = pn.indicators.Gauge(
-        name=name, value=round(lastVar2, 1), bounds=(0, Var2Max), format='{value} ' + Var2udm,
+        name=name, value=shownLastVar2, bounds=(0, Var2Max), format='{value} ' + Var2udm,
         colors=[(Var2Minus / Var2Max, 'red'), (Var2Plus / Var2Max, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                      "axisLabel": {
                          "color": 'black', "fontSize": 10,
                      },
-                     "detail": {"color": value_color, "fontSize": 10},
-                     "radius": '75%'}
+                     "detail": {"color": value_color, "fontSize": 14},
+                     "radius": '90%', "nan_format": "-"}
     )
 
     fig2.width = 250
@@ -294,15 +305,20 @@ def createVar3Gauge(Data):
         value_color ="black"
     pointer_path = 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z'
 
+    if np.isnan(lastVar3) == 0:
+        shownLastVar3 = round(lastVar3, 1)
+    else:
+        shownLastVar3 = 0
+
     fig2 = pn.indicators.Gauge(
-        name=name, value=round(lastVar3, 1), bounds=(0, Var3Max), format='{value} '+Var3udm,
+        name=name, value=shownLastVar3, bounds=(0, Var3Max), format='{value} '+Var3udm,
         colors=[(Var3Minus/Var3Max, 'red'), (Var3Plus/Var3Max, 'gold'), (1, 'green')], annulus_width=5,
         custom_opts={"pointer": {"itemStyle": {"color": "black"}, 'icon': pointer_path}, "value": {"color": "black"},
                      "axisLabel": {
                          "color": 'black', "fontSize": 10,
                      },
-                     "detail": {"color": value_color, "fontSize": 10},
-                     "radius": '75%'}
+                     "detail": {"color": value_color, "fontSize": 14},
+                     "radius": '90%'}
     )
 
     fig2.width = 250
