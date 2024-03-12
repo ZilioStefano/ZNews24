@@ -56,7 +56,7 @@ def retrieveData(Plant, PlantState):
 
 def switchPlant():
 
-    Plants = ["SA3", "TF", "ST", "PAR", "CST", "PG", "SCN", "RUB"]
+    Plants = ["SA3", "TF", "ST", "PAR", "CST", "PG"]
     N = len(Plants)
 
     indexDf = pd.read_csv('current index.csv')

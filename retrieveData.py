@@ -4,6 +4,8 @@ from createPlots import createProdPlot, createEtaPlot, createCSTPlot
 from createGauges import createEtaGauge, createPowerGauge, createVar2Gauge, createVar3Gauge
 from num2string import convertNumber as cvN
 import numpy as np
+import csv
+import json
 
 
 def createLabel(Data):
@@ -22,11 +24,14 @@ def createLabel(Data):
 
     if Plant == "SCN":
 
-        Av24 = str(round(100 * np.mean([last24Data["Availability Inv 1"][0], last24Data["Availability Inv 2"][0]]),1)) + " %"
-        AvthisMonth = str(round(100 * np.mean([thisMonthData["Availability Inv 1"][0], thisMonthData["Availability Inv 2"][0]]), 1)) + " %"
-        AvthisYear = str(round(100 * np.mean([thisYearData["Availability Inv 1"][0], thisYearData["Availability Inv 2"][0]]), 1)) + " %"
+        Av24 = (str(round(100 * np.mean([last24Data["Availability Inv 1"][0], last24Data["Availability Inv 2"][0]]), 1))
+                + " %")
+        AvthisMonth = str(round(100 * np.mean([thisMonthData["Availability Inv 1"][0],
+                                               thisMonthData["Availability Inv 2"][0]]), 1)) + " %"
+        AvthisYear = str(round(100 * np.mean([thisYearData["Availability Inv 1"][0],
+                                              thisYearData["Availability Inv 2"][0]]), 1)) + " %"
     else:
-        Av24 = str(round(100 * last24Data["Availability"][0],1)) + " %"
+        Av24 = str(round(100 * last24Data["Availability"][0], 1)) + " %"
         AvthisMonth = str(round(100 * thisMonthData["Availability"][0], 1)) + " %"
         AvthisYear = str(round(100 * thisYearData["Availability"][0], 1)) + " %"
 
@@ -55,40 +60,36 @@ def createLabel(Data):
 def createGauges(Data):
 
     if len(Data["last24hTL"]) == 0:
+
         lastVar2 = float('NaN')
-        lastEta = float('NaN')
-        lastP = float('NaN')
         lastVar3 = float('NaN')
 
     else:
         if Data["PlantType"] == "PV":
+
             lastVar2 = Data["last24hTL"]["I"].iloc[-1]
             lastVar3 = Data["last24hTL"]["TMod"].iloc[-1]
 
         else:
+
             lastVar2 = Data["last24hTL"]["Q"].iloc[-1]
             lastVar3 = Data["last24hTL"]["Bar"].iloc[-1]
 
-        lastEta = Data["last24hTL"]["Eta"].iloc[-1]
-        lastP = Data["last24hTL"]["P"].iloc[-1]
-
-    if np.isnan(lastEta):
-        lastEta = 0
-
     if np.isnan(lastVar2):
         lastVar2 = 0
+        
+    dataIn = Data["DatiGauge"]
+    EtaData = dataIn["Eta"]
+    # EtaData["Plant"] = Data["Plant"]
+    EtaData["etaName"] = Data["etaName"]
 
-    dataGauge = {
-        "lastVar2": lastVar2, "lastEta": lastEta, "Plant": Data["Plant"], "lastVar3": lastVar3,
-        "etaName": Data["etaName"]
-    }
+    EtaGaugeData = createEtaGauge(EtaData)
 
-    EtaGaugeData = createEtaGauge(dataGauge)
+    # dataGauge = {"lastP": lastP, "lastVar3": lastVar3, "lastVar2": lastVar2, "DatiRef": EtaGaugeData["DatiRef"],
+    #              "Plant": Data["Plant"], "etaName": Data["etaName"], "PMax": Data["PMax"], "PN": Data["PN"]}
 
-    dataGauge = {"lastP": lastP, "lastVar3": lastVar3, "lastVar2": lastVar2, "DatiRef": EtaGaugeData["DatiRef"],
-                 "Plant": Data["Plant"], "etaName": Data["etaName"], "PMax": Data["PMax"], "PN": Data["PN"]}
-
-    PowerGaugeData = createPowerGauge(dataGauge)
+    PowerData = dataIn["Power"]
+    PowerGaugeData = createPowerGauge(PowerData)
 
     if Data["Plant"] != "TF" and Data["Plant"] != "SA3" and Data["Plant"] != "SCN":
         DataQ = lastVar2 * 1000
@@ -102,8 +103,10 @@ def createGauges(Data):
 
     Var2GaugeData = createVar2Gauge(dataGauge)
 
-    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3"]["Max"], "udm": Data["Var3"]["udm"], "Var3name": Data["Var3"]["name"],
-                 "MeanVar3": Data["Var3"]["Media"], "DevVar3": Data["Var3"]["Dev"], "Plant": Data["Plant"]}
+    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3"]["Max"], "udm": Data["Var3"]["udm"],
+                 "Var3name": Data["Var3"]["name"], "MeanVar3": Data["Var3"]["Media"], "DevVar3": Data["Var3"]["Dev"],
+                 "Plant": Data["Plant"]}
+
     Var3GaugeData = createVar3Gauge(dataGauge)
 
     GaugeData = {"Eta": EtaGaugeData, "Var2": Var2GaugeData, "Power": PowerGaugeData, "Var3": Var3GaugeData}
@@ -122,7 +125,8 @@ def createPlots(Data):
 
     if Plant != "CST":
         dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"], "Var2udm": Data["Var2"]["udm"]}
+                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"],
+                    "Var2udm": Data["Var2"]["udm"]}
         ProductionPlot = createProdPlot(dataPlot)
         
     else:
@@ -141,6 +145,7 @@ def readPlantData(Plant):
 
     ftp = FTP("192.168.10.211", timeout=120)
     ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
+    udmVar2 = ""
 
     if Plant == "ST":
         ftp.cwd('/dati/San_Teodoro')
@@ -154,6 +159,7 @@ def readPlantData(Plant):
         Var3Max = 40
         PN = PMax
         udmVar2 = "l/s"
+        folder = "San_Teodoro"
 
     elif Plant == "TF":
         ftp.cwd('/dati/Torrino_Foresta')
@@ -167,6 +173,7 @@ def readPlantData(Plant):
         Var3Max = 2
         PN = PMax
         udmVar2 = "m\u00b3/s"
+        folder = "Torrino_Foresta"
 
     elif Plant == "PG":
         ftp.cwd('/dati/ponte_giurino')
@@ -180,8 +187,10 @@ def readPlantData(Plant):
         Var3Max = 50
         PN = PMax
         udmVar2 = "l/s"
+        folder = "ponte_giurino"
 
     elif Plant == "SA3":
+        
         ftp.cwd('/dati/SA3')
         PlantType = "Hydro"
         Var2Max = 80
@@ -193,8 +202,10 @@ def readPlantData(Plant):
         Var3Dev = 1
         PN = PMax
         udmVar2 = "m\u00b3/s"
+        folder = "SA3"
 
     elif Plant == "CST":
+
         ftp.cwd('/dati/San_Teodoro')
         PlantType = "Hydro"
         PMax = 260 + 100
@@ -206,9 +217,10 @@ def readPlantData(Plant):
         Var3Max = 36
         PN = PMax
         udmVar2 = "l/s"
-
+        folder = "San_Teodoro"
 
     elif Plant == "SCN":
+
         ftp.cwd('/dati/SCN')
         PlantType = "PV"
         PMax = 930
@@ -219,6 +231,7 @@ def readPlantData(Plant):
         Var3Dev = 14
         Var3Max = 70
         PN = 927
+        folder = "SCN"
 
     elif Plant == "RUB":
         ftp.cwd('/dati/Rubino')
@@ -231,6 +244,7 @@ def readPlantData(Plant):
         Var3Media = 19
         Var3Dev = 16
         PN = 997
+        folder = "Rubino"
 
     else:
         ftp.cwd('/dati/San_Teodoro')
@@ -244,9 +258,10 @@ def readPlantData(Plant):
         Var3Max = 36
         PN = PMax
         udmVar2 = "l/s"
-
+        folder = "San_Teodoro"
 
     if PlantType == "Hydro":
+
         nameVar2 = "Q"
         udmVar3 = "barg"
         nameVar3 = "h"
@@ -291,8 +306,6 @@ def readPlantData(Plant):
     last24Stat["Var2Max"] = Var2Max
     last24Stat["Var3Max"] = Var3Max
 
-    last24File = Plant + "last24hTL.csv"
-
     thisMonthStatFile = Plant + "MonthStat.csv"
 
     gFile = open(thisMonthStatFile, "wb")
@@ -315,16 +328,23 @@ def readPlantData(Plant):
     thisYearStat["Var2Max"] = Var2Max
     thisYearStat["Var3Max"] = Var3Max
 
+    # ftp = FTP("192.168.10.211", timeout=120)
+    # ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
+    ftp.cwd('/dati/'+folder)
+    gFile = open("dati gauge.csv", "wb")
+    ftp.retrbinary('RETR dati gauge.csv', gFile.write)
+    gFile.close()
+
+    DatiGauge = pd.read_csv('dati gauge.csv')
+
     ftp.close()
 
     Data = {
-            "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
-            "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax, "Var2": {"Max": Var2Max, "udm": udmVar2,
-            "name": nameVar2, "Media": Var2Media, "Dev": Var2Dev}, "Var3": {"Max": Var3Max, "Media": Var3Media,
-            "Dev": Var3Dev, "udm": udmVar3, "name": nameVar3}, "etaName": etaName, "PN": PN
-        }
-
-    if Plant == "CST":
-        B = 2
+        "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
+        "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax,
+        "Var2": {"Max": Var2Max, "udm": udmVar2, "name": nameVar2, "Media": Var2Media, "Dev": Var2Dev},
+        "Var3": {"Max": Var3Max, "Media": Var3Media, "Dev": Var3Dev, "udm": udmVar3, "name": nameVar3},
+        "etaName": etaName, "PN": PN, "DatiGauge": DatiGauge,
+    }
 
     return Data
