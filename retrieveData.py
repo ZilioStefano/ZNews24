@@ -1,350 +1,346 @@
 from ftplib import FTP
 import pandas as pd
 from createPlots import createProdPlot, createEtaPlot, createCSTPlot
-from createGauges import createEtaGauge, createPowerGauge, createVar2Gauge, createVar3Gauge
+from createGauges import create_eta_gauge, create_power_gauge, create_var2_gauge, create_var3_gauge
 from num2string import convertNumber as cvN
 import numpy as np
 import csv
 import json
 
 
-def createLabel(Data):
+def create_label(data):
 
-    last24Data = Data["last24hStat"]
-    Elast24, dummy = cvN(last24Data["Energy"][0], "Energy", "HTML", Data["Plant"])
+    last24_data = data["last24hStat"]
+    energy_last24, dummy = cvN(last24_data["Energy"][0], "Energy", "HTML", data["Plant"])
 
-    if np.isnan(last24Data["etaMean"][0]):
-        Etalast24 = ""
+    if np.isnan(last24_data["etaMean"][0]):
+        eta_last24 = ""
     else:
-        Etalast24 = str(round(100 * last24Data["etaMean"][0], 1)) + " %"
+        eta_last24 = str(round(100 * last24_data["etaMean"][0], 1)) + " %"
 
-    thisMonthData = Data["thisMonthStat"]
-    thisYearData = Data["thisYearStat"]
-    Plant = Data["Plant"]
+    this_month_data = data["thisMonthStat"]
+    this_year_data = data["thisYearStat"]
+    plant = data["Plant"]
 
-    if Plant == "SCN":
+    if plant == "SCN":
 
-        Av24 = (str(round(100 * np.mean([last24Data["Availability Inv 1"][0], last24Data["Availability Inv 2"][0]]), 1))
+        av24 = (str(round(100 * np.mean([last24_data["Availability Inv 1"][0], last24_data["Availability Inv 2"][0]]), 1))
                 + " %")
-        AvthisMonth = str(round(100 * np.mean([thisMonthData["Availability Inv 1"][0],
-                                               thisMonthData["Availability Inv 2"][0]]), 1)) + " %"
-        AvthisYear = str(round(100 * np.mean([thisYearData["Availability Inv 1"][0],
-                                              thisYearData["Availability Inv 2"][0]]), 1)) + " %"
+        av_this_month = str(round(100 * np.mean([this_month_data["Availability Inv 1"][0],
+                                                 this_month_data["Availability Inv 2"][0]]), 1)) + " %"
+        av_this_year = str(round(100 * np.mean([this_year_data["Availability Inv 1"][0],
+                                                this_year_data["Availability Inv 2"][0]]), 1)) + " %"
     else:
-        Av24 = str(round(100 * last24Data["Availability"][0], 1)) + " %"
-        AvthisMonth = str(round(100 * thisMonthData["Availability"][0], 1)) + " %"
-        AvthisYear = str(round(100 * thisYearData["Availability"][0], 1)) + " %"
+        av24 = str(round(100 * last24_data["Availability"][0], 1)) + " %"
+        av_this_month = str(round(100 * this_month_data["Availability"][0], 1)) + " %"
+        av_this_year = str(round(100 * this_year_data["Availability"][0], 1)) + " %"
 
-    Yealdlast24, dummy = cvN(last24Data["Resa"][0], "Money", "HTML", Data["Plant"])
+    yeald_last24, dummy = cvN(last24_data["Resa"][0], "Money", "HTML", data["Plant"])
 
-    EthisMonth, dummy = cvN(thisMonthData["Energy"][0], "Energy", "HTML", Data["Plant"])
-    EtathisMonth = str(round(100 * thisMonthData["etaMean"][0], 1)) + " %"
-    YeldthisMonth, dummy = cvN(thisMonthData["Resa"][0], "Money", "HTML", Data["Plant"])
+    energy_this_month, dummy = cvN(this_month_data["Energy"][0], "Energy", "HTML", data["Plant"])
+    eta_this_month = str(round(100 * this_month_data["etaMean"][0], 1)) + " %"
+    yeld_this_month, dummy = cvN(this_month_data["Resa"][0], "Money", "HTML", data["Plant"])
 
-    EthisYear, dummy = cvN(thisYearData["Energy"][0], "Energy", "HTML", Data["Plant"])
-    EtathisYear = str(round(100 * thisYearData["etaMean"][0], 1)) + " %"
-    YeldthisYear, dummy = cvN(thisYearData["Resa"][0], "Money", "HTML", Data["Plant"])
+    energy_this_year, dummy = cvN(this_year_data["Energy"][0], "Energy", "HTML", data["Plant"])
+    eta_this_year = str(round(100 * this_year_data["etaMean"][0], 1)) + " %"
+    yeld_this_year, dummy = cvN(this_year_data["Resa"][0], "Money", "HTML", data["Plant"])
 
-    if Plant == "SCN" or Plant == "RUB":
-        Yealdlast24 = Yealdlast24 + " RID"
-        YeldthisMonth = YeldthisMonth + " RID"
-        YeldthisYear = YeldthisYear + " RID"
+    if plant == "SCN" or plant == "RUB":
+        yeald_last24 = yeald_last24 + " RID"
+        yeld_this_month = yeld_this_month + " RID"
+        yeld_this_year = yeld_this_year + " RID"
 
-    Label = {"last24h": {"Energy": Elast24, "Eta": Etalast24, "Av": Av24, "Yeald": Yealdlast24},
-             "thisMonth": {"Energy": EthisMonth, "Eta": EtathisMonth, "Av": AvthisMonth, "Yeald": YeldthisMonth},
-             "thisYear": {"Energy": EthisYear, "Eta": EtathisYear, "Av": AvthisYear, "Yeald": YeldthisYear}}
+    label = {"last24h": {"Energy": energy_last24, "Eta": eta_last24, "Av": av24, "Yeald": yeald_last24},
+             "thisMonth": {"Energy": energy_this_month, "Eta": eta_this_month, "Av": av_this_month, "Yeald": yeld_this_month},
+             "thisYear": {"Energy": energy_this_year, "Eta": eta_this_year, "Av": av_this_year, "Yeald": yeld_this_year}}
 
-    return Label
+    return label
 
 
-def createGauges(Data):
+def create_gauges(data):
 
-    if len(Data["last24hTL"]) == 0:
+    if len(data["last24hTL"]) == 0:
 
-        lastVar2 = float('NaN')
-        lastVar3 = float('NaN')
+        last_var2 = float('NaN')
+        last_var3 = float('NaN')
 
     else:
-        if Data["PlantType"] == "PV":
+        if data["PlantType"] == "PV":
 
-            lastVar2 = Data["last24hTL"]["I"].iloc[-1]
-            lastVar3 = Data["last24hTL"]["TMod"].iloc[-1]
+            last_var2 = data["last24hTL"]["I"].iloc[-1]
+            last_var3 = data["last24hTL"]["TMod"].iloc[-1]
 
         else:
 
-            lastVar2 = Data["last24hTL"]["Q"].iloc[-1]
-            lastVar3 = Data["last24hTL"]["Bar"].iloc[-1]
+            last_var2 = data["last24hTL"]["Q"].iloc[-1]
+            last_var3 = data["last24hTL"]["Bar"].iloc[-1]
 
-    if np.isnan(lastVar2):
-        lastVar2 = 0
+    if np.isnan(last_var2):
+        last_var2 = 0
         
-    dataIn = Data["DatiGauge"]
-    EtaData = dataIn["Eta"]
+    data_in = data["DatiGauge"]
+    eta_data = data_in["Eta"]
     # EtaData["Plant"] = Data["Plant"]
-    EtaData["etaName"] = Data["etaName"]
+    eta_data["etaName"] = data["etaName"]
 
-    EtaGaugeData = createEtaGauge(EtaData)
+    eta_gauge_data = create_eta_gauge(eta_data)
 
-    # dataGauge = {"lastP": lastP, "lastVar3": lastVar3, "lastVar2": lastVar2, "DatiRef": EtaGaugeData["DatiRef"],
-    #              "Plant": Data["Plant"], "etaName": Data["etaName"], "PMax": Data["PMax"], "PN": Data["PN"]}
+    power_data = data_in["Power"]
+    power_gauge_data = create_power_gauge(power_data)
 
-    PowerData = dataIn["Power"]
-    PowerGaugeData = createPowerGauge(PowerData)
-
-    if Data["Plant"] != "TF" and Data["Plant"] != "SA3" and Data["Plant"] != "SCN":
-        DataQ = lastVar2 * 1000
+    if data["Plant"] != "TF" and data["Plant"] != "SA3" and data["Plant"] != "SCN":
+        data_q = last_var2 * 1000
     else:
-        DataQ = lastVar2
+        data_q = last_var2
 
-    dataGauge = {
-        "lastVar2": DataQ, "Var2Max": Data["Var2"]["Max"], "udm": Data["Var2"]["udm"], "Var2name": Data["Var2"]["name"],
-        "MeanVar2": Data["Var2"]["Media"], "DevVar2": Data["Var2"]["Dev"], "Plant": Data["Plant"]
+    data_gauge = {
+        "lastVar2": data_q, "Var2Max": data["Var2"]["Max"], "udm": data["Var2"]["udm"], "Var2name": data["Var2"]["name"],
+        "MeanVar2": data["Var2"]["Media"], "DevVar2": data["Var2"]["Dev"], "Plant": data["Plant"]
     }
 
-    Var2GaugeData = createVar2Gauge(dataGauge)
+    var2_gauge_data = create_var2_gauge(data_gauge)
 
-    dataGauge = {"lastVar3": lastVar3, "Var3Max": Data["Var3"]["Max"], "udm": Data["Var3"]["udm"],
-                 "Var3name": Data["Var3"]["name"], "MeanVar3": Data["Var3"]["Media"], "DevVar3": Data["Var3"]["Dev"],
-                 "Plant": Data["Plant"]}
+    data_gauge = {"lastVar3": last_var3, "Var3Max": data["Var3"]["Max"], "udm": data["Var3"]["udm"],
+                 "Var3name": data["Var3"]["name"], "MeanVar3": data["Var3"]["Media"], "DevVar3": data["Var3"]["Dev"],
+                 "Plant": data["Plant"]}
 
-    Var3GaugeData = createVar3Gauge(dataGauge)
+    var3_gauge_data = create_var3_gauge(data_gauge)
 
-    GaugeData = {"Eta": EtaGaugeData, "Var2": Var2GaugeData, "Power": PowerGaugeData, "Var3": Var3GaugeData}
+    gauge_data = {"Eta": eta_gauge_data, "Var2": var2_gauge_data, "Power": power_gauge_data, "Var3": var3_gauge_data}
 
-    return GaugeData
+    return gauge_data
 
 
-def createPlots(Data):
+def create_plots(data):
 
-    Plant = Data["Plant"]
-    dfYearTL = Data["thisYearTL"]
-    PlantType = Data["PlantType"]
+    plant = data["Plant"]
+    df_year_tl = data["thisYearTL"]
+    plant_type = data["PlantType"]
 
-    if Plant != "TF" and PlantType == "Hydro":
-        dfYearTL["Q"] = dfYearTL["Q"] * 1000
+    if plant != "TF" and plant_type == "Hydro":
+        df_year_tl["Q"] = df_year_tl["Q"] * 1000
 
-    if Plant != "CST":
-        dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"],
-                    "Var2udm": Data["Var2"]["udm"]}
-        ProductionPlot = createProdPlot(dataPlot)
+    if plant != "CST":
+        data_plot = {"Plant": plant, "Timeline": df_year_tl, "Plant state": data["Plant state"],
+                    "Plant type": data["PlantType"], "PMax": data["PMax"], "Var2Max": data["Var2"]["Max"],
+                    "Var2udm": data["Var2"]["udm"]}
+        production_plot = createProdPlot(data_plot)
         
     else:
-        dataPlot = {"Plant": Plant, "Timeline": dfYearTL, "Plant state": Data["Plant state"],
-                    "Plant type": Data["PlantType"], "PMax": Data["PMax"], "Var2Max": Data["Var2"]["Max"]}
-        ProductionPlot = createCSTPlot(dataPlot)
+        data_plot = {"Plant": plant, "Timeline": df_year_tl, "Plant state": data["Plant state"],
+                    "Plant type": data["PlantType"], "PMax": data["PMax"], "Var2Max": data["Var2"]["Max"]}
+        production_plot = createCSTPlot(data_plot)
 
-    EtaPlot = createEtaPlot(dataPlot)
+    eta_plot = createEtaPlot(data_plot)
 
-    Plots = {"Production plot": ProductionPlot, "Eta plot": EtaPlot}
+    plots = {"Production plot": production_plot, "Eta plot": eta_plot}
 
-    return Plots
+    return plots
 
 
-def readPlantData(Plant):
+def read_plant_data(plant):
 
     ftp = FTP("192.168.10.211", timeout=120)
     ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
-    udmVar2 = ""
+    udm_var2 = ""
 
-    if Plant == "ST":
+    if plant == "ST":
         ftp.cwd('/dati/San_Teodoro')
-        PlantType = "Hydro"
-        PMax = 260
-        Var2Max = 80
-        Var2Media = 69.4
-        Var2Dev = 15
-        Var3Media = 27.1
-        Var3Dev = 0.5
-        Var3Max = 40
-        PN = PMax
-        udmVar2 = "l/s"
+        plant_type = "Hydro"
+        power_max = 260
+        var2max = 80
+        var2media = 69.4
+        var2dev = 15
+        var3media = 27.1
+        var3dev = 0.5
+        var3max = 40
+        pn = power_max
+        udm_var2 = "l/s"
         folder = "San_Teodoro"
 
-    elif Plant == "TF":
+    elif plant == "TF":
         ftp.cwd('/dati/Torrino_Foresta')
-        PlantType = "Hydro"
-        PMax = 400
-        Var2Max = 3
-        Var2Media = 0.9787
-        Var2Dev = 0.983
-        Var3Media = 1.41
-        Var3Dev = 0.04
-        Var3Max = 2
-        PN = PMax
-        udmVar2 = "m\u00b3/s"
+        plant_type = "Hydro"
+        power_max = 400
+        var2max = 3
+        var2media = 0.9787
+        var2dev = 0.983
+        var3media = 1.41
+        var3dev = 0.04
+        var3max = 2
+        pn = power_max
+        udm_var2 = "m\u00b3/s"
         folder = "Torrino_Foresta"
 
-    elif Plant == "PG":
+    elif plant == "PG":
         ftp.cwd('/dati/ponte_giurino')
-        PlantType = "Hydro"
-        Var2Max = 80
-        Var2Media = 12
-        Var2Dev = 15
-        Var3Media = 31.5
-        Var3Dev = 0.9
-        PMax = 250
-        Var3Max = 50
-        PN = PMax
-        udmVar2 = "l/s"
+        plant_type = "Hydro"
+        var2max = 80
+        var2media = 12
+        var2dev = 15
+        var3media = 31.5
+        var3dev = 0.9
+        power_max = 250
+        var3max = 50
+        pn = power_max
+        udm_var2 = "l/s"
         folder = "ponte_giurino"
 
-    elif Plant == "SA3":
+    elif plant == "SA3":
         
         ftp.cwd('/dati/SA3')
-        PlantType = "Hydro"
-        Var2Max = 80
-        Var2Media = 9.77
-        Var2Dev = 9.76
-        PMax = 250
-        Var3Media = 1.5
-        Var3Max = 3
-        Var3Dev = 1
-        PN = PMax
-        udmVar2 = "m\u00b3/s"
+        plant_type = "Hydro"
+        var2max = 80
+        var2media = 9.77
+        var2dev = 9.76
+        power_max = 250
+        var3media = 1.5
+        var3max = 3
+        var3dev = 1
+        pn = power_max
+        udm_var2 = "m\u00b3/s"
         folder = "SA3"
 
-    elif Plant == "CST":
+    elif plant == "CST":
 
         ftp.cwd('/dati/San_Teodoro')
-        PlantType = "Hydro"
-        PMax = 260 + 100
-        Var2Max = 110
-        Var2Media = 26 + 69.4
-        Var2Dev = np.sqrt(15 ** 2 + 15 ** 2)
-        Var3Media = (27.1 + 26.9) / 2
-        Var3Dev = 0.5 * np.sqrt(0.5 ** 2 + 0.5 ** 2)
-        Var3Max = 36
-        PN = PMax
-        udmVar2 = "l/s"
+        plant_type = "Hydro"
+        power_max = 260 + 100
+        var2max = 110
+        var2media = 26 + 69.4
+        var2dev = np.sqrt(15 ** 2 + 15 ** 2)
+        var3media = (27.1 + 26.9) / 2
+        var3dev = 0.5 * np.sqrt(0.5 ** 2 + 0.5 ** 2)
+        var3max = 36
+        pn = power_max
+        udm_var2 = "l/s"
         folder = "San_Teodoro"
 
-    elif Plant == "SCN":
+    elif plant == "SCN":
 
         ftp.cwd('/dati/SCN')
-        PlantType = "PV"
-        PMax = 930
-        Var2Max = 1000
-        Var2Media = 390
-        Var2Dev = 333
-        Var3Media = 27
-        Var3Dev = 14
-        Var3Max = 70
-        PN = 927
+        plant_type = "PV"
+        power_max = 930
+        var2max = 1000
+        var2media = 390
+        var2dev = 333
+        var3media = 27
+        var3dev = 14
+        var3max = 70
+        pn = 927
         folder = "SCN"
 
-    elif Plant == "RUB":
+    elif plant == "RUB":
         ftp.cwd('/dati/Rubino')
-        PlantType = "PV"
-        PMax = 998
-        Var2Max = 1300
-        Var2Media = 469
-        Var2Dev = 327
-        Var3Max = 1300
-        Var3Media = 19
-        Var3Dev = 16
-        PN = 997
+        plant_type = "PV"
+        power_max = 998
+        var2max = 1300
+        var2media = 469
+        var2dev = 327
+        var3max = 1300
+        var3media = 19
+        var3dev = 16
+        pn = 997
         folder = "Rubino"
 
     else:
         ftp.cwd('/dati/San_Teodoro')
-        PlantType = "Hydro"
-        PMax = 100
-        Var2Max = 30
-        Var2Media = 26
-        Var2Dev = 6
-        Var3Media = 26.9
-        Var3Dev = 0.5
-        Var3Max = 36
-        PN = PMax
-        udmVar2 = "l/s"
+        plant_type = "Hydro"
+        power_max = 100
+        var2max = 30
+        var2media = 26
+        var2dev = 6
+        var3media = 26.9
+        var3dev = 0.5
+        var3max = 36
+        pn = power_max
+        udm_var2 = "l/s"
         folder = "San_Teodoro"
 
-    if PlantType == "Hydro":
+    if plant_type == "Hydro":
 
-        nameVar2 = "Q"
-        udmVar3 = "barg"
-        nameVar3 = "h"
-        etaName = "\u03b7"
+        name_var2 = "Q"
+        udm_var3 = "barg"
+        name_var3 = "h"
+        eta_name = "\u03b7"
     else:
-        udmVar2 = "W/m\u00b2"
-        nameVar2 = "I"
-        udmVar3 = "°C"
-        nameVar3 = "T"
-        etaName = "PR"
+        udm_var2 = "W/m\u00b2"
+        name_var2 = "I"
+        udm_var3 = "°C"
+        name_var3 = "T"
+        eta_name = "PR"
 
-    last24File = Plant + "last24hTL.csv"
+    last24file = plant + "last24hTL.csv"
 
-    gFile = open(last24File, "wb")
-    ftp.retrbinary("RETR " + last24File, gFile.write)
-    gFile.close()
-    df24hTL = pd.read_csv(last24File)
+    g_file = open(last24file, "wb")
+    ftp.retrbinary("RETR " + last24file, g_file.write)
+    g_file.close()
+    df24h_tl = pd.read_csv(last24file)
 
-    df24hTL["PMax"] = PMax
-    df24hTL["Var2Max"] = Var2Max
-    df24hTL["Var3Max"] = Var3Max
+    df24h_tl["PMax"] = power_max
+    df24h_tl["Var2Max"] = var2max
+    df24h_tl["Var3Max"] = var3max
 
-    thisYearFile = Plant + "YearTL.csv"
+    this_year_file = plant + "YearTL.csv"
 
-    gFile = open(thisYearFile, "wb")
-    ftp.retrbinary("RETR " + thisYearFile, gFile.write)
-    gFile.close()
-    thisYearTL = pd.read_csv(thisYearFile)
+    g_file = open(this_year_file, "wb")
+    ftp.retrbinary("RETR " + this_year_file, g_file.write)
+    g_file.close()
+    this_year_tl = pd.read_csv(this_year_file)
 
-    thisYearTL["PMax"] = PMax
-    thisYearTL["Var2Max"] = Var2Max
-    thisYearTL["Var3Max"] = Var3Max
+    this_year_tl["PMax"] = power_max
+    this_year_tl["Var2Max"] = var2max
+    this_year_tl["Var3Max"] = var3max
 
-    last24StatFile = Plant + "last24hStat.csv"
+    last24_statfile = plant + "last24hStat.csv"
 
-    gFile = open(last24StatFile, "wb")
-    ftp.retrbinary("RETR " + last24StatFile, gFile.write)
-    gFile.close()
-    last24Stat = pd.read_csv(last24StatFile)
+    g_file = open(last24_statfile, "wb")
+    ftp.retrbinary("RETR " + last24_statfile, g_file.write)
+    g_file.close()
+    last24stat = pd.read_csv(last24_statfile)
 
-    last24Stat["PMax"] = PMax
-    last24Stat["Var2Max"] = Var2Max
-    last24Stat["Var3Max"] = Var3Max
+    last24stat["PMax"] = power_max
+    last24stat["Var2Max"] = var2max
+    last24stat["Var3Max"] = var3max
 
-    thisMonthStatFile = Plant + "MonthStat.csv"
+    this_month_stat_file = plant + "MonthStat.csv"
 
-    gFile = open(thisMonthStatFile, "wb")
-    ftp.retrbinary("RETR " + thisMonthStatFile, gFile.write)
-    gFile.close()
-    thisMonthStat = pd.read_csv(thisMonthStatFile)
+    g_file = open(this_month_stat_file, "wb")
+    ftp.retrbinary("RETR " + this_month_stat_file, g_file.write)
+    g_file.close()
+    this_month_stat = pd.read_csv(this_month_stat_file)
 
-    thisMonthStat["PMax"] = PMax
-    thisMonthStat["Var2Max"] = Var2Max
-    thisMonthStat["Var3Max"] = Var3Max
+    this_month_stat["PMax"] = power_max
+    this_month_stat["Var2Max"] = var2max
+    this_month_stat["Var3Max"] = var3max
 
-    thisYearStatFile = Plant + "YearStat.csv"
+    this_year_statfile = plant + "YearStat.csv"
 
-    gFile = open(thisYearStatFile, "wb")
-    ftp.retrbinary("RETR " + thisYearStatFile, gFile.write)
-    gFile.close()
-    thisYearStat = pd.read_csv(thisYearStatFile)
+    g_file = open(this_year_statfile, "wb")
+    ftp.retrbinary("RETR " + this_year_statfile, g_file.write)
+    g_file.close()
+    this_year_stat = pd.read_csv(this_year_statfile)
 
-    thisYearStat["PMax"] = PMax
-    thisYearStat["Var2Max"] = Var2Max
-    thisYearStat["Var3Max"] = Var3Max
+    this_year_stat["PMax"] = power_max
+    this_year_stat["Var2Max"] = var2max
+    this_year_stat["Var3Max"] = var3max
 
-    # ftp = FTP("192.168.10.211", timeout=120)
-    # ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
+    filename = plant+"_dati_gauge.csv"
     ftp.cwd('/dati/'+folder)
-    gFile = open("dati gauge.csv", "wb")
-    ftp.retrbinary('RETR dati gauge.csv', gFile.write)
-    gFile.close()
+    g_file = open(filename, "wb")
+    ftp.retrbinary('RETR ' + filename, g_file.write)
+    g_file.close()
 
-    DatiGauge = pd.read_csv('dati gauge.csv')
+    dati_gauge = pd.read_csv(filename)
 
     ftp.close()
 
-    Data = {
-        "last24hTL": df24hTL, "thisYearTL": thisYearTL, "last24hStat": last24Stat, "thisMonthStat": thisMonthStat,
-        "thisYearStat": thisYearStat, "PlantType": PlantType, "PMax": PMax,
-        "Var2": {"Max": Var2Max, "udm": udmVar2, "name": nameVar2, "Media": Var2Media, "Dev": Var2Dev},
-        "Var3": {"Max": Var3Max, "Media": Var3Media, "Dev": Var3Dev, "udm": udmVar3, "name": nameVar3},
-        "etaName": etaName, "PN": PN, "DatiGauge": DatiGauge,
+    data = {
+        "last24hTL": df24h_tl, "thisYearTL": this_year_tl, "last24hStat": last24stat, "thisMonthStat": this_month_stat,
+        "thisYearStat": this_year_stat, "PlantType": plant_type, "PMax": power_max,
+        "Var2": {"Max": var2max, "udm": udm_var2, "name": name_var2, "Media": var2media, "Dev": var2dev},
+        "Var3": {"Max": var3max, "Media": var3media, "Dev": var3dev, "udm": udm_var3, "name": name_var3},
+        "etaName": eta_name, "PN": pn, "DatiGauge": dati_gauge,
     }
 
-    return Data
+    return data

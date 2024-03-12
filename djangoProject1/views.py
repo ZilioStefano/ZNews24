@@ -2,89 +2,88 @@ import pandas as pd
 from django.shortcuts import render
 from ftplib import FTP
 import csv
-from retrieveData import readPlantData, createPlots, createGauges, createLabel
+from retrieveData import read_plant_data, create_plots, create_gauges, create_label
 
 
-def readAlarm(Plant):
+def read_alarm(plant):
 
     ftp = FTP("192.168.10.211", timeout=120)
     ftp.login('ftpdaticentzilio', 'Sd2PqAS.We8zBK')
     ftp.cwd('/dati/Database_Produzione')
-    gFile = open("AlarmStatesBeta.csv", "wb")
-    ftp.retrbinary('RETR AlarmStatesBeta.csv', gFile.write)
-    gFile.close()
-    # StatoAllarmi = pd.read_csv("AlarmStatesBeta.csv", on_bad_lines='skip', header='infer', delimiter=';')
+    g_file = open("AlarmStatesBeta.csv", "wb")
+    ftp.retrbinary('RETR AlarmStatesBeta.csv', g_file.write)
+    g_file.close()
 
-    StatoAllarmi = csv.DictReader(open("AlarmStatesBeta.csv"))
+    stato_allarmi = csv.DictReader(open("AlarmStatesBeta.csv"))
 
-    for row in StatoAllarmi:
-        StatoAllarmi = row
-    if Plant == "SCN":
-        CurrAlarm = {"SCN1": StatoAllarmi["SCN1"], "SCN2": StatoAllarmi["SCN2"]}
+    for row in stato_allarmi:
+        stato_allarmi = row
+    if plant == "SCN":
+        curr_alarm = {"SCN1": stato_allarmi["SCN1"], "SCN2": stato_allarmi["SCN2"]}
 
     else:
-        CurrAlarm = StatoAllarmi[Plant]
+        curr_alarm = stato_allarmi[plant]
 
-    return CurrAlarm
+    return curr_alarm
 
 
-def retrieveData(Plant, PlantState):
+def retrieve_data(plant, plant_state):
 
-    Data = readPlantData(Plant)
-    Data["Plant state"] = PlantState
-    Data["Plant"] = Plant
+    data = read_plant_data(plant)
+    data["Plant state"] = plant_state
+    data["Plant"] = plant
 
-    Plots = createPlots(Data)
-    Gauges = createGauges(Data)
-    Label = createLabel(Data)
+    plots = create_plots(data)
+    gauges = create_gauges(data)
+    label = create_label(data)
 
-    if PlantState == "A":
-        pageColor = "IndianRed"
+    if plant_state == "A":
+        page_color = "IndianRed"
     else:
-        pageColor = "#e2f5ef"
+        page_color = "#e2f5ef"
 
-    HTMLData = {
-        "Production": Plots["Production plot"]["Graph"], "Eta": Plots["Eta plot"]["Graph"],
-        "GaugeEta": Gauges["Eta"]["HTML"], "LedEta": Gauges["Eta"]["ledColor"], "GaugePower": Gauges["Power"]["HTML"],
-        "LedPower": Gauges["Power"]["ledColor"], "Gauge2": Gauges["Var2"]["HTML"], "Led2": Gauges["Var2"]["ledColor"],
-        "Gauge3": Gauges["Var3"]["HTML"], "Led3": Gauges["Var3"]["ledColor"],
-        "Label": Label, "pagecolor": pageColor
+    html_data = {
+        "Production": plots["Production plot"]["Graph"], "Eta": plots["Eta plot"]["Graph"],
+        "GaugeEta": gauges["Eta"]["HTML"], "LedEta": gauges["Eta"]["ledColor"], "GaugePower": gauges["Power"]["HTML"],
+        "LedPower": gauges["Power"]["ledColor"], "Gauge2": gauges["Var2"]["HTML"], "Led2": gauges["Var2"]["ledColor"],
+        "Gauge3": gauges["Var3"]["HTML"], "Led3": gauges["Var3"]["ledColor"],
+        "Label": label, "pagecolor": page_color
     }
 
-    return HTMLData
+    return html_data
 
 
-def switchPlant():
+def switch_plant():
 
-    Plants = ["SA3", "TF", "ST", "PAR", "CST", "PG"]
-    N = len(Plants)
+    plants = ["SA3", "TF", "ST", "PAR", "CST", "PG"]
+    n = len(plants)
 
-    indexDf = pd.read_csv('current index.csv')
-    indexDf["index"] = (indexDf['index'][0] + 1) % N
-    indexDf.to_csv("current index.csv", index=False)
-    currPlant = Plants[indexDf["index"][0]]
+    index_df = pd.read_csv('current index.csv')
+    index_df["index"] = (index_df['index'][0] + 1) % n
+    index_df.to_csv("current index.csv", index=False)
+    curr_plant = plants[index_df["index"][0]]
 
-    return currPlant
+    return curr_plant
 
 
-def setTemplate(Plant):
+def set_template(plant):
 
-    if (Plant == "TF" or Plant == "ST" or Plant == "PAR" or Plant == "SA3" or Plant == "PG" or Plant == "CST"
-            or Plant == "SCN" or Plant == "RUB"):
-        Template = "mainPage.html"
+    if (plant == "TF" or plant == "ST" or plant == "PAR" or plant == "SA3" or plant == "PG" or plant == "CST"
+            or plant == "SCN" or plant == "RUB"):
+        template = "mainPage.html"
 
     else:
-        Template = ""
+        template = ""
 
-    return Template
+    return template
 
 
 def main(request):
 
-    currPlant = switchPlant()
-    print(currPlant)
-    PlantState = readAlarm(currPlant)
-    Template = setTemplate(currPlant)
-    HTMLData = retrieveData(currPlant, PlantState)
+    curr_plant = switch_plant()
+    print(curr_plant)
+    plant_state = read_alarm(curr_plant)
+    template = set_template(curr_plant)
+    html_data = retrieve_data(curr_plant, plant_state)
 
-    return render(request, Template, context=HTMLData)
+    return render(request, template, context=html_data)
